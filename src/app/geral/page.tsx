@@ -21,7 +21,7 @@ const SECOES: { destino: Destino; titulo: string; cor: string }[] = [
 
 export default function GeralPage() {
   const { isAdmin } = useAuth();
-  const etapas = useEtapaSelecionada();
+  const etapas = useEtapaSelecionada({ incluirFinals: false });
   const { etapa, lista, setEtapaId } = etapas;
   const dados = useEtapaDados(etapa?.id);
   const [desempate, setDesempate] = useState<string[] | null>(null);
@@ -57,8 +57,6 @@ export default function GeralPage() {
         <Carregando />
       ) : !etapa ? (
         <Vazio>Nenhuma etapa em andamento.</Vazio>
-      ) : etapa.tipo === "finals" ? (
-        <Vazio>A Finals não tem fase de grupos.</Vazio>
       ) : !geral || geral.linhas.length === 0 ? (
         <Vazio>Os grupos desta etapa ainda não foram montados.</Vazio>
       ) : (

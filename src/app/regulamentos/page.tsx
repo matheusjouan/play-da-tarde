@@ -3,16 +3,16 @@
 import { ExternalLink, FileText } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Alerta, Carregando, Vazio } from "@/components/ui";
+import { ordenarEtapas } from "@/lib/etapas";
 import { useCollection } from "@/lib/useCollection";
-import type { Etapa, Regulamento } from "@/lib/types";
+import { temporadaDe, type Etapa, type Regulamento } from "@/lib/types";
 
 export default function RegulamentosPage() {
-  const etapas = useCollection<Etapa>("etapas", { ordenarPor: "numero" });
+  const etapas = useCollection<Etapa>("etapas");
   const regulamentos = useCollection<Regulamento>("regulamentos", { ordenarPor: "titulo" });
 
   // Etapas mais recentes primeiro; só as que têm regulamento.
-  const porEtapa = [...etapas.data]
-    .reverse()
+  const porEtapa = ordenarEtapas(etapas.data)
     .map((e) => ({ etapa: e, docs: regulamentos.data.filter((r) => r.etapaId === e.id) }))
     .filter((g) => g.docs.length > 0);
 
@@ -31,7 +31,9 @@ export default function RegulamentosPage() {
         <div className="space-y-5">
           {porEtapa.map(({ etapa, docs }) => (
             <section key={etapa.id}>
-              <h2 className="mb-2 text-sm font-semibold tracking-wide text-slate-500 uppercase">{etapa.nome}</h2>
+              <h2 className="mb-2 text-sm font-semibold tracking-wide text-slate-500 uppercase">
+                {etapa.nome} · {temporadaDe(etapa)}
+              </h2>
               <ul className="space-y-2">
                 {docs.map((r) => (
                   <li key={r.id}>

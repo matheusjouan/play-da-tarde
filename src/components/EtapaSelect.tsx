@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { inputCls } from "@/components/ui";
+import { agruparPorTemporada, ordenarEtapas } from "@/lib/etapas";
 import { useCollection } from "@/lib/useCollection";
 import type { Etapa } from "@/lib/types";
 
@@ -14,31 +15,41 @@ export function EtapaSelecionadaProvider({ children }: { children: ReactNode }) 
   return <EscolhaContext.Provider value={escolha}>{children}</EscolhaContext.Provider>;
 }
 
-/** Etapas jogadas no sistema (não importadas), da mais recente para a mais antiga. */
-function etapasJogaveis(etapas: Etapa[]): Etapa[] {
-  return etapas.filter((e) => e.origem === "sistema").sort((a, b) => b.numero - a.numero);
-}
-
-/** Etapa escolhida pelo usuário; padrão = a mais recente. */
-export function useEtapaSelecionada() {
+/**
+ * Etapa escolhida pelo usuário; padrão = a mais recente (maior temporada, depois maior número).
+ * Só etapas jogadas no sistema (importadas não têm grupos/chaves).
+ * `incluirFinals: false` (Grupos, Geral): a Finals não aparece e não vira o padrão.
+ */
+export function useEtapaSelecionada({ incluirFinals = true }: { incluirFinals?: boolean } = {}) {
   const ctx = useContext(EscolhaContext);
   if (!ctx) throw new Error("useEtapaSelecionada precisa estar dentro de <EtapaSelecionadaProvider>");
   const [escolhida, setEscolhida] = ctx;
   const etapas = useCollection<Etapa>("etapas");
-  const lista = etapasJogaveis(etapas.data);
+  const lista = ordenarEtapas(etapas.data.filter((e) => e.origem === "sistema" && (incluirFinals || e.tipo !== "finals")));
   const etapa = lista.find((e) => e.id === escolhida) ?? lista[0];
   return { etapa, lista, setEtapaId: setEscolhida, loading: etapas.loading, error: etapas.error };
 }
 
 export function EtapaSelect({ lista, etapa, onChange }: { lista: Etapa[]; etapa?: Etapa; onChange: (id: string) => void }) {
   if (lista.length <= 1) return null;
+  const grupos = agruparPorTemporada(lista);
   return (
     <select className={`${inputCls} mb-4`} value={etapa?.id} onChange={(e) => onChange(e.target.value)} aria-label="Etapa">
-      {lista.map((e) => (
-        <option key={e.id} value={e.id}>
-          {e.nome}
-        </option>
-      ))}
+      {grupos.length === 1
+        ? lista.map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.nome}
+            </option>
+          ))
+        : grupos.map(([temporada, etapas]) => (
+            <optgroup key={temporada} label={`Temporada ${temporada}`}>
+              {etapas.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.nome}
+                </option>
+              ))}
+            </optgroup>
+          ))}
     </select>
   );
 }

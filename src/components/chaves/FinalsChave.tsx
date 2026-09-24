@@ -67,12 +67,41 @@ export function FinalsChave({ etapa, partidas, chaves, isAdmin }: Props) {
 
   if (rank.loading) return null;
 
+  // Antes de gerar, só o admin vê a prévia da chave; o público vê o Top 8 atual.
+  if (!docChave && !isAdmin) {
+    const top = rank.linhas.filter((l) => l.posicao <= VAGAS_FINALS);
+    return (
+      <div className="space-y-4">
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          A chave da Finals {temporada} ainda não foi divulgada. Abaixo, o Top {VAGAS_FINALS} atual do{" "}
+          <Link href="/rank" className="font-medium underline">
+            Rank
+          </Link>{" "}
+          — pode mudar até o fim da temporada.
+        </p>
+        {top.length === 0 ? (
+          <Vazio>O Rank da temporada ainda não tem jogadores.</Vazio>
+        ) : (
+          <ol className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
+            {top.map((l) => (
+              <li key={l.jogadorId} className="flex min-h-11 items-center gap-3 px-4">
+                <span className="w-7 text-right text-emerald-700 tabular-nums">{l.posicao}º</span>
+                <span className="flex-1 truncate font-medium">{rank.nome(l.jogadorId)}</span>
+                <span className="text-sm text-slate-500 tabular-nums">{l.total} pts</span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <p className="rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-600">
         Top {VAGAS_FINALS} do <Link href="/rank" className="font-medium text-emerald-700 underline">Rank {temporada}</Link> em mata-mata
         direto. Não vale pontos.
-        {!docChave && " Prévia com o Rank atual."}
+        {!docChave && " Prévia visível só para o admin até a chave ser gerada."}
       </p>
 
       {rank.empateCorte.length > 0 && !docChave && (

@@ -97,5 +97,12 @@ Seguir `docs/SETUP.md`.
 
 **Teste:** criar Finals → 8 jogadores corretos, confrontos conforme formato definido; Rank da temporada não muda.
 
-## [ ] E12 — Polimento final mobile
-**Teste:** roteiro completo em celular real, logado e deslogado: accordions, tabs, scroll de tabelas, botões ≥ 44px, estados de carregando/vazio.
+## [ ] E12 — Virada de temporada, acesso à Finals e polimento mobile
+- Número de etapa único **por temporada** (2027 pode ter "1ª Etapa" de novo).
+- "Etapa mais recente" = maior temporada, depois maior número.
+- Seletor de etapa agrupado por temporada; Grupos e Geral ignoram a Finals.
+- Card 🏆 Finals da temporada na aba Rank (segue o seletor de temporada; link direto para a chave; campeão).
+- Prévia da chave da Finals só para admin; público vê "em breve" + Top 8 atual. (Prévia de Ouro/Prata continua pública.)
+- Revisão mobile: sem rolagem lateral, alvos de toque ≥ 44px.
+
+**Teste:** ver roteiro na entrega + roteiro completo em celular real, logado e deslogado.

@@ -27,6 +27,8 @@ export function useRank(temporadaPedida?: number | null) {
 
   return {
     temporada,
+    /** Etapa Finals desta temporada, se já foi criada. */
+    finals: etapas.data.find((e) => e.tipo === "finals" && temporadaDe(e) === temporada),
     temporadas,
     linhas,
     contam,

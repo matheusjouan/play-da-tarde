@@ -7,10 +7,11 @@ import { Voltar } from "@/components/Voltar";
 import { Alerta, btnIcon, btnPrimary, Card, Carregando, Field, inputCls, Vazio } from "@/components/ui";
 import { criarRegulamento, excluirRegulamento } from "@/lib/repo";
 import { useCollection } from "@/lib/useCollection";
-import type { Etapa, Regulamento } from "@/lib/types";
+import { ordenarEtapas } from "@/lib/etapas";
+import { temporadaDe, type Etapa, type Regulamento } from "@/lib/types";
 
 export default function AdminRegulamentosPage() {
-  const etapas = useCollection<Etapa>("etapas", { ordenarPor: "numero" });
+  const etapas = useCollection<Etapa>("etapas");
   const regulamentos = useCollection<Regulamento>("regulamentos", { ordenarPor: "titulo" });
   const [etapaId, setEtapaId] = useState("");
   const [titulo, setTitulo] = useState("");
@@ -18,7 +19,10 @@ export default function AdminRegulamentosPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
 
-  const nomeEtapa = (id: string) => etapas.data.find((e) => e.id === id)?.nome ?? "Etapa removida";
+  const nomeEtapa = (id: string) => {
+    const e = etapas.data.find((x) => x.id === id);
+    return e ? `${e.nome} (${temporadaDe(e)})` : "Etapa removida";
+  };
 
   async function adicionar(ev: FormEvent) {
     ev.preventDefault();
@@ -55,9 +59,9 @@ export default function AdminRegulamentosPage() {
             <Field label="Etapa">
               <select className={inputCls} value={etapaId} onChange={(e) => setEtapaId(e.target.value)}>
                 <option value="">Selecione…</option>
-                {etapas.data.map((e) => (
+                {ordenarEtapas(etapas.data).map((e) => (
                   <option key={e.id} value={e.id}>
-                    {e.nome}
+                    {e.nome} ({temporadaDe(e)})
                   </option>
                 ))}
               </select>

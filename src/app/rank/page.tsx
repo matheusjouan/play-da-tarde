@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AlertTriangle, Trophy } from "lucide-react";
 import { Acordeao, alternar } from "@/components/Acordeao";
 import { useAuth } from "@/components/AuthProvider";
+import { FinalsCard } from "@/components/chaves/FinalsCard";
 import { DesempateModal } from "@/components/grupos/DesempateModal";
 import { PageHeader } from "@/components/PageHeader";
 import { Alerta, btnSecondary, Carregando, inputCls, Vazio } from "@/components/ui";
@@ -67,13 +68,15 @@ export default function RankPage() {
                   key={o}
                   aria-pressed={ordem === o}
                   onClick={() => setOrdem(o)}
-                  className={`min-h-10 rounded-md text-sm font-medium ${ordem === o ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}
+                  className={`min-h-11 rounded-md text-sm font-medium ${ordem === o ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}
                 >
                   {o === "pontos" ? "Por pontos" : "Por nome"}
                 </button>
               ))}
             </div>
           </div>
+
+          <FinalsCard temporada={temporada} finals={r.finals} nome={nome} />
 
           <p className="rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-600">
             {r.contam.length > 0 ? `Somando: ${r.contam.map((e) => e.nome).join(", ")}.` : "Nenhuma etapa pontuada ainda."}

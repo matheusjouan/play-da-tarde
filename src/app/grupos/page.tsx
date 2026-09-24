@@ -15,7 +15,7 @@ import type { Grupo } from "@/lib/types";
 
 export default function GruposPage() {
   const { isAdmin } = useAuth();
-  const etapas = useEtapaSelecionada();
+  const etapas = useEtapaSelecionada({ incluirFinals: false });
   const { etapa, lista, setEtapaId } = etapas;
   const dados = useEtapaDados(etapa?.id);
   const { nome } = dados;
@@ -40,8 +40,6 @@ export default function GruposPage() {
         <Carregando />
       ) : !etapa ? (
         <Vazio>Nenhuma etapa em andamento.</Vazio>
-      ) : etapa.tipo === "finals" ? (
-        <Vazio>A Finals não tem fase de grupos — veja a aba Chaves.</Vazio>
       ) : dados.grupos.length === 0 ? (
         <Vazio>Os grupos desta etapa ainda não foram montados.</Vazio>
       ) : (

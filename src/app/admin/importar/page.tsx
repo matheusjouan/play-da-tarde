@@ -8,6 +8,7 @@ import { Voltar } from "@/components/Voltar";
 import { Alerta, btnPrimary, Card, Carregando, Field, inputCls } from "@/components/ui";
 import { novaEtapaPadrao } from "@/lib/defaults";
 import { casarJogador, lerCsv, type LinhaImportada } from "@/lib/engine/importacao";
+import { numeroEmUso } from "@/lib/etapas";
 import { importarEtapa } from "@/lib/repo";
 import { useCollection } from "@/lib/useCollection";
 import type { Etapa, Jogador } from "@/lib/types";
@@ -51,14 +52,14 @@ export default function ImportarPage() {
   const comErro = itens?.filter((i) => i.erro) ?? [];
   const escolhidos = itens?.filter((i) => i.escolha !== NOVO).map((i) => i.escolha) ?? [];
   const repetidos = new Set(escolhidos.filter((id, i) => escolhidos.indexOf(id) !== i));
-  const numeroEmUso = etapas.data.some((e) => e.numero === numero);
+  const numeroOcupado = numeroEmUso(etapas.data, numero, temporada);
   const nomeJogador = (id: string) => jogadores.data.find((j) => j.id === id)?.nome ?? "?";
   const resumo = itens && {
     existentes: itens.filter((i) => i.escolha !== NOVO).length,
     novos: itens.filter((i) => i.escolha === NOVO).length,
     conferir: itens.filter((i) => i.tipo === "sugestao").length,
   };
-  const podeImportar = !!itens && itens.length > 0 && comErro.length === 0 && repetidos.size === 0 && !numeroEmUso && !!nome.trim();
+  const podeImportar = !!itens && itens.length > 0 && comErro.length === 0 && repetidos.size === 0 && !numeroOcupado && !!nome.trim();
 
   async function importar() {
     if (!itens || !podeImportar) return;
@@ -97,7 +98,11 @@ export default function ImportarPage() {
             <input className={inputCls} inputMode="numeric" value={temporada || ""} onChange={(e) => setTemporada(Number(e.target.value) || 0)} />
           </Field>
         </div>
-        {numeroEmUso && <Alerta>Já existe uma etapa com o número {numero}.</Alerta>}
+        {numeroOcupado && (
+          <Alerta>
+            Já existe uma etapa número {numero} na temporada {temporada}.
+          </Alerta>
+        )}
 
         <label className={`${btnPrimary} w-full cursor-pointer`}>
           <FileUp size={18} /> {arquivo ?? "Escolher arquivo CSV"}
@@ -143,7 +148,7 @@ export default function ImportarPage() {
                       {it.escolha === NOVO ? "novo" : it.tipo === "sugestao" ? "confira" : "igual"}
                     </span>
                     <select
-                      className={`${inputCls} min-h-10 text-sm ${repetidos.has(it.escolha) ? "border-red-400" : ""}`}
+                      className={`${inputCls} text-sm ${repetidos.has(it.escolha) ? "border-red-400" : ""}`}
                       value={it.escolha}
                       onChange={(e) => escolher(i, e.target.value)}
                       aria-label={`Jogador para ${it.nome}`}

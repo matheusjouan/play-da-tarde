@@ -55,7 +55,7 @@ export default function EditarEtapaPage() {
           <EtapaForm
             key={JSON.stringify(etapa)}
             inicial={{ ...etapa, temporada: temporadaDe(etapa) }}
-            numerosEmUso={etapas.filter((e) => e.id !== id).map((e) => e.numero)}
+            outras={etapas.filter((e) => e.id !== id)}
             onSalvar={async ({ ...dados }) => {
               delete (dados as Partial<Etapa>).id;
               await atualizarEtapa(id, dados);

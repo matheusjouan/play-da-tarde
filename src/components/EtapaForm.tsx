@@ -4,17 +4,19 @@ import { useState, type FormEvent } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Alerta, btnIcon, btnPrimary, btnSecondary, Card, Field, inputCls } from "@/components/ui";
 import { CHAVES, FASES_MATA_MATA } from "@/lib/defaults";
+import { numeroEmUso } from "@/lib/etapas";
 import type { Chave, Etapa, FaseMataMata, SemId } from "@/lib/types";
 
 type Props = {
   inicial: SemId<Etapa>;
-  numerosEmUso: number[];
+  /** Demais etapas (para validar número único dentro da temporada). */
+  outras: Pick<Etapa, "numero" | "temporada">[];
   onSalvar: (dados: SemId<Etapa>) => Promise<void>;
 };
 
 const num = (v: string) => (v === "" ? 0 : Math.max(0, Math.floor(Number(v)) || 0));
 
-export function EtapaForm({ inicial, numerosEmUso, onSalvar }: Props) {
+export function EtapaForm({ inicial, outras, onSalvar }: Props) {
   const [e, setE] = useState(inicial);
   const [erro, setErro] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
@@ -45,7 +47,7 @@ export function EtapaForm({ inicial, numerosEmUso, onSalvar }: Props) {
     if (!e.nome.trim()) return setErro("Informe o nome da etapa.");
     if (e.numero < 1) return setErro("Informe o número da etapa.");
     if (!e.temporada || e.temporada < 2000 || e.temporada > 2100) return setErro("Informe a temporada (ano com 4 dígitos).");
-    if (numerosEmUso.includes(e.numero)) return setErro(`Já existe uma etapa com o número ${e.numero}.`);
+    if (numeroEmUso(outras, e.numero, e.temporada)) return setErro(`Já existe uma etapa número ${e.numero} na temporada ${e.temporada}.`);
 
     // Etapa Finals não pontua: tabelas vazias.
     const dados: SemId<Etapa> = regular
