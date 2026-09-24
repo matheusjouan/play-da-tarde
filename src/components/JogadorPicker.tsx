@@ -12,10 +12,13 @@ type Props = {
   disponiveis: Jogador[];
   onConfirmar: (ids: string[]) => Promise<void>;
   onFechar: () => void;
+  /** Escolha de um único jogador (substituição). */
+  unico?: boolean;
+  aviso?: string;
 };
 
-/** Tela cheia (mobile) para escolher vários jogadores. */
-export function JogadorPicker({ titulo, disponiveis, onConfirmar, onFechar }: Props) {
+/** Tela cheia (mobile) para escolher jogadores. */
+export function JogadorPicker({ titulo, disponiveis, onConfirmar, onFechar, unico = false, aviso }: Props) {
   const [selecionados, setSelecionados] = useState<string[]>([]);
   const [busca, setBusca] = useState("");
   const [salvando, setSalvando] = useState(false);
@@ -25,7 +28,7 @@ export function JogadorPicker({ titulo, disponiveis, onConfirmar, onFechar }: Pr
   const visiveis = filtro ? disponiveis.filter((j) => j.nome_normalizado.includes(filtro)) : disponiveis;
 
   function alternar(id: string) {
-    setSelecionados((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+    setSelecionados((s) => (s.includes(id) ? s.filter((x) => x !== id) : unico ? [id] : [...s, id]));
   }
 
   async function confirmar() {
@@ -50,6 +53,7 @@ export function JogadorPicker({ titulo, disponiveis, onConfirmar, onFechar }: Pr
       </header>
 
       <div className="mx-auto w-full max-w-3xl flex-1 overflow-y-auto p-4">
+        {aviso && <p className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">{aviso}</p>}
         <div className="relative mb-3">
           <Search className="absolute top-1/2 left-3 -translate-y-1/2 text-slate-400" size={18} />
           <input className={`${inputCls} pl-10`} placeholder="Buscar jogador" value={busca} onChange={(e) => setBusca(e.target.value)} />
@@ -67,7 +71,8 @@ export function JogadorPicker({ titulo, disponiveis, onConfirmar, onFechar }: Pr
               <li key={j.id}>
                 <label className="flex min-h-12 cursor-pointer items-center gap-3 px-4">
                   <input
-                    type="checkbox"
+                    type={unico ? "radio" : "checkbox"}
+                    name="jogador"
                     className="size-5 accent-emerald-700"
                     checked={selecionados.includes(j.id)}
                     onChange={() => alternar(j.id)}
@@ -84,7 +89,7 @@ export function JogadorPicker({ titulo, disponiveis, onConfirmar, onFechar }: Pr
         <div className="mx-auto max-w-3xl">
           {erro && <p className="mb-2 text-sm text-red-700">{erro}</p>}
           <button className={`${btnPrimary} w-full`} disabled={salvando || selecionados.length === 0} onClick={confirmar}>
-            {salvando ? "Salvando…" : `Confirmar (${selecionados.length} selecionados)`}
+            {salvando ? "Salvando…" : unico ? "Confirmar" : `Confirmar (${selecionados.length} selecionados)`}
           </button>
         </div>
       </footer>

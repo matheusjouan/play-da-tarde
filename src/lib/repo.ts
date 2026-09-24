@@ -1,5 +1,5 @@
 import { addDoc, collection, deleteDoc, doc, getDocs, limit, query, updateDoc, where, writeBatch } from "firebase/firestore";
-import { chavePar, gerarConfrontos, type Par } from "@/lib/engine/confrontos";
+import { chavePar, gerarConfrontos, planejarSubstituicao, type Par } from "@/lib/engine/confrontos";
 import { db } from "@/lib/firebase";
 import { limparNome, normalizarNome } from "@/lib/nomes";
 import type { Etapa, Grupo, Jogador, Partida, Regulamento, SemId, SetPlacar } from "@/lib/types";
@@ -100,6 +100,22 @@ export async function removerJogadorGrupo(grupo: Grupo, jogadorId: string) {
   for (const outro of grupo.jogadorIds) {
     if (outro !== jogadorId) batch.delete(partidaGrupoRef(grupo.id, jogadorId, outro));
   }
+  await batch.commit();
+}
+
+/**
+ * Substitui um jogador (SPEC 3.6): o novo entra na mesma posição, os jogos do antigo são apagados
+ * (inclusive com placar) e são criados os confrontos do novo. O jogador que saiu não pontua na etapa.
+ */
+export async function substituirJogadorGrupo(grupo: Grupo, antigoId: string, novoId: string) {
+  const plano = planejarSubstituicao(grupo.jogadorIds, antigoId, novoId);
+  const batch = writeBatch(db);
+  batch.update(doc(db, "grupos", grupo.id), {
+    jogadorIds: plano.jogadorIds,
+    desempate_manual: (grupo.desempate_manual ?? []).filter((id) => id !== antigoId),
+  });
+  for (const [a, b] of plano.remover) batch.delete(partidaGrupoRef(grupo.id, a, b));
+  for (const par of plano.criar) batch.set(partidaGrupoRef(grupo.id, ...par), novaPartidaGrupo(grupo.etapaId, grupo.id, par));
   await batch.commit();
 }
 

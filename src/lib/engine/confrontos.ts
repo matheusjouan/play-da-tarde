@@ -5,6 +5,28 @@ export function chavePar(a: string, b: string): string {
   return a < b ? `${a}__${b}` : `${b}__${a}`;
 }
 
+export type PlanoSubstituicao = {
+  /** Lista do grupo com o novo jogador na mesma posição do antigo. */
+  jogadorIds: string[];
+  /** Confrontos do jogador antigo (serão apagados, com ou sem placar). */
+  remover: Par[];
+  /** Confrontos do novo jogador contra todos os demais. */
+  criar: Par[];
+};
+
+/** Substituição (SPEC 3.6): os jogos do antigo são apagados e o novo enfrenta todos do grupo. */
+export function planejarSubstituicao(jogadorIds: string[], antigoId: string, novoId: string): PlanoSubstituicao {
+  if (!jogadorIds.includes(antigoId)) throw new Error("Jogador a substituir não está no grupo.");
+  if (jogadorIds.includes(novoId)) throw new Error("O novo jogador já está no grupo.");
+  const novaLista = jogadorIds.map((id) => (id === antigoId ? novoId : id));
+  const outros = jogadorIds.filter((id) => id !== antigoId);
+  return {
+    jogadorIds: novaLista,
+    remover: outros.map((o) => [antigoId, o]),
+    criar: gerarConfrontos(novaLista).filter((p) => p.includes(novoId)),
+  };
+}
+
 /**
  * Todos contra todos (método do círculo): n jogadores → n·(n−1)/2 confrontos,
  * ordenados por rodada, de forma que ninguém jogue duas vezes na mesma rodada.

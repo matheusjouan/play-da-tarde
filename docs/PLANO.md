@@ -67,7 +67,7 @@ Seguir `docs/SETUP.md`.
 4. Comparar com cálculo manual.
 5. Duas abas abertas: editar numa, a outra atualiza sozinha.
 
-## [ ] E7 — Classificação geral da etapa
+## [X] E7 — Classificação geral da etapa
 **Teste:** ordem bate com cálculo manual; destino correto (8×5: 1º/2º Ouro, 3º/4º Prata, 5º eliminado).
 
 ## [ ] E8 — Substituição de jogador

@@ -2,18 +2,29 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { Pencil, Plus, Trash2, UserPlus, X } from "lucide-react";
+import { ArrowLeftRight, Pencil, Plus, Trash2, UserPlus, X } from "lucide-react";
 import { JogadorPicker } from "@/components/JogadorPicker";
 import { PageHeader } from "@/components/PageHeader";
 import { Voltar } from "@/components/Voltar";
 import { Alerta, btnIcon, btnPrimary, btnSecondary, Card, Carregando, Vazio } from "@/components/ui";
-import { adicionarJogadoresGrupo, criarGrupo, excluirGrupo, removerJogadorGrupo, renomearGrupo } from "@/lib/repo";
+import {
+  adicionarJogadoresGrupo,
+  criarGrupo,
+  excluirGrupo,
+  removerJogadorGrupo,
+  renomearGrupo,
+  substituirJogadorGrupo,
+} from "@/lib/repo";
 import { useCollection } from "@/lib/useCollection";
 import type { Etapa, Grupo, Jogador, Partida } from "@/lib/types";
 
 const LETRAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-type Picker = { modo: "novo" } | { modo: "adicionar"; grupo: Grupo } | null;
+type Picker =
+  | { modo: "novo" }
+  | { modo: "adicionar"; grupo: Grupo }
+  | { modo: "substituir"; grupo: Grupo; jogadorId: string }
+  | null;
 
 export default function GruposAdminPage() {
   const { id: etapaId } = useParams<{ id: string }>();
@@ -47,6 +58,19 @@ export default function GruposAdminPage() {
     if (confirm(`Remover ${nomeJogador(jogadorId)} do ${g.nome}? Os jogos dele neste grupo serão apagados.${aviso}`)) {
       executar(() => removerJogadorGrupo(g, jogadorId));
     }
+  }
+
+  // Versão mais recente do grupo (pode ter mudado enquanto o seletor estava aberto).
+  const grupoAtual = (g: Grupo) => grupos.data.find((x) => x.id === g.id) ?? g;
+
+  function avisoSubstituicao(g: Grupo, jogadorId: string) {
+    const jogos = jogosDoGrupo(g).filter((p) => p.jogador1Id === jogadorId || p.jogador2Id === jogadorId);
+    const comPlacar = jogos.filter((p) => p.sets.length > 0).length;
+    return (
+      `Os ${jogos.length} jogos de ${nomeJogador(jogadorId)} no ${g.nome} serão apagados` +
+      (comPlacar ? ` (${comPlacar} com placar)` : "") +
+      ` e o novo jogador enfrentará todos do grupo. ${nomeJogador(jogadorId)} não pontua nesta etapa.`
+    );
   }
 
   function renomear(g: Grupo) {
@@ -96,7 +120,15 @@ export default function GruposAdminPage() {
                 {g.jogadorIds.map((jid) => (
                   <li key={jid} className="flex items-center pl-3">
                     <span className="flex-1">{nomeJogador(jid)}</span>
-                    <button className={btnIcon} onClick={() => remover(g, jid)} aria-label={`Remover ${nomeJogador(jid)}`}>
+                    <button
+                      className={btnIcon}
+                      onClick={() => setPicker({ modo: "substituir", grupo: g, jogadorId: jid })}
+                      aria-label={`Substituir ${nomeJogador(jid)}`}
+                      title="Substituir"
+                    >
+                      <ArrowLeftRight size={18} className="text-emerald-700" />
+                    </button>
+                    <button className={btnIcon} onClick={() => remover(g, jid)} aria-label={`Remover ${nomeJogador(jid)}`} title="Remover">
                       <X size={18} />
                     </button>
                   </li>
@@ -110,14 +142,35 @@ export default function GruposAdminPage() {
         </div>
       )}
 
-      {picker && (
+      {picker?.modo === "novo" && (
         <JogadorPicker
-          titulo={picker.modo === "novo" ? `Novo ${proximoNome}` : `Adicionar ao ${picker.grupo.nome}`}
+          titulo={`Novo ${proximoNome}`}
           disponiveis={disponiveis}
           onFechar={() => setPicker(null)}
-          onConfirmar={(ids) =>
-            picker.modo === "novo" ? criarGrupo(etapaId, proximoNome, ids) : adicionarJogadoresGrupo(picker.grupo, ids)
-          }
+          onConfirmar={(ids) => criarGrupo(etapaId, proximoNome, ids)}
+        />
+      )}
+      {picker?.modo === "adicionar" && (
+        <JogadorPicker
+          titulo={`Adicionar ao ${picker.grupo.nome}`}
+          disponiveis={disponiveis}
+          onFechar={() => setPicker(null)}
+          onConfirmar={(ids) => adicionarJogadoresGrupo(grupoAtual(picker.grupo), ids)}
+        />
+      )}
+      {picker?.modo === "substituir" && (
+        <JogadorPicker
+          unico
+          titulo={`Substituir ${nomeJogador(picker.jogadorId)}`}
+          aviso={avisoSubstituicao(picker.grupo, picker.jogadorId)}
+          disponiveis={disponiveis}
+          onFechar={() => setPicker(null)}
+          onConfirmar={async ([novoId]) => {
+            const g = grupoAtual(picker.grupo);
+            if (confirm(`Substituir ${nomeJogador(picker.jogadorId)} por ${nomeJogador(novoId)} no ${g.nome}?`)) {
+              await substituirJogadorGrupo(g, picker.jogadorId, novoId);
+            }
+          }}
         />
       )}
     </>
