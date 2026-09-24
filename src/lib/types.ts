@@ -31,6 +31,31 @@ export type Jogador = {
   nome_normalizado: string;
 };
 
+export type Grupo = {
+  id: string;
+  etapaId: string;
+  nome: string;
+  jogadorIds: string[];
+  desempate_manual?: string[];
+};
+
+export type FasePartida = "grupo" | "oitavas" | "quartas" | "semi" | "final";
+
+export type SetPlacar = { games1: number; games2: number; superTieBreak?: boolean };
+
+export type Partida = {
+  id: string;
+  etapaId: string;
+  grupoId?: string;
+  fase: FasePartida;
+  chave?: Chave;
+  slot?: number;
+  jogador1Id: string | null;
+  jogador2Id: string | null;
+  sets: SetPlacar[];
+  vencedorId: string | null;
+};
+
 export type Regulamento = {
   id: string;
   etapaId: string;

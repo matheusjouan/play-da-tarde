@@ -82,7 +82,9 @@ Exemplos:
   - Prata: campeão=250, vice=165, semi=100, quartas=50, oitavas=25
 - Pontos do jogador na etapa = pontos da posição no grupo + pontos da fase alcançada no mata-mata.
 - Etapas `finals` não geram pontos.
-- **Rank da temporada = soma** de `ranking_por_etapa` de todas as etapas `regular` (desempate: ver pendência P1).
+- **Temporada:** cada etapa pertence a uma temporada (ano). Todas as etapas até agora (incl. 2ª Etapa importada) são **2026**.
+- **Rank da temporada = soma** de `ranking_por_etapa` das etapas `regular` **daquela temporada** (desempate: ver pendência P1). A Finals usa o Top 8 da própria temporada.
+- As abas Grupos, Geral e Chaves são **por etapa** (seletor, padrão = mais recente; a escolha é mantida entre abas). O Rank é **por temporada**, com detalhamento por jogador em cada etapa.
 - Etapas importadas (`origem: "importado"`) guardam só os pontos. Etapas do sistema calculam a partir das partidas e gravam `ranking_por_etapa` ao **Finalizar etapa**.
 - Deve ser possível cadastrar etapas retroativas (ex.: 1ª Etapa) via importação, sem mudar código.
 
@@ -93,6 +95,7 @@ Exemplos:
 ```
 etapas/{etapaId}
   nome, numero, data_inicio, data_fim (texto livre)
+  temporada: number                    // ano, ex.: 2026 (ausente = 2026)
   tipo: "regular" | "finals"
   origem: "sistema" | "importado"
   status: "grupos" | "mata_mata" | "finalizada"
@@ -184,3 +187,5 @@ Ver `docs/PLANO.md`.
 | Tamanho de grupos | 8×5 daqui em diante; sistema segue genérico |
 | Super Tie-Break | **Não conta como set**; +2 games ao vencedor (3.3) |
 | Substituição | Jogador que saiu não pontua (3.6) |
+| Temporada | Etapas têm ano; Rank e Finals por temporada; todas as etapas atuais = 2026 (3.8) |
+| Navegação | Grupos/Geral/Chaves por etapa com seletor mantido entre abas; Rank por temporada (3.8) |

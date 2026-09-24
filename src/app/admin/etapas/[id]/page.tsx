@@ -1,11 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { Trash2 } from "lucide-react";
+import { Trash2, Users } from "lucide-react";
 import { EtapaForm } from "@/components/EtapaForm";
 import { PageHeader } from "@/components/PageHeader";
 import { Voltar } from "@/components/Voltar";
-import { Carregando, Vazio } from "@/components/ui";
+import { btnPrimary, Carregando, Vazio } from "@/components/ui";
 import { atualizarEtapa, excluirEtapa } from "@/lib/repo";
 import { useCollection } from "@/lib/useCollection";
 import type { Etapa } from "@/lib/types";
@@ -33,6 +34,11 @@ export default function EditarEtapaPage() {
       ) : (
         <>
           <PageHeader title={etapa.nome} />
+          {etapa.origem === "sistema" && (
+            <Link href={`/admin/etapas/${etapa.id}/grupos`} className={`${btnPrimary} mb-4 w-full`}>
+              <Users size={18} /> Montar grupos
+            </Link>
+          )}
           {/* key: remonta o formulário se outra aba alterar a etapa */}
           <EtapaForm
             key={JSON.stringify(etapa)}

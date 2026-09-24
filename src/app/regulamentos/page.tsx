@@ -7,8 +7,8 @@ import { useCollection } from "@/lib/useCollection";
 import type { Etapa, Regulamento } from "@/lib/types";
 
 export default function RegulamentosPage() {
-  const etapas = useCollection<Etapa>("etapas", "numero");
-  const regulamentos = useCollection<Regulamento>("regulamentos", "titulo");
+  const etapas = useCollection<Etapa>("etapas", { ordenarPor: "numero" });
+  const regulamentos = useCollection<Regulamento>("regulamentos", { ordenarPor: "titulo" });
 
   // Etapas mais recentes primeiro; só as que têm regulamento.
   const porEtapa = [...etapas.data]

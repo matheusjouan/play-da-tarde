@@ -28,7 +28,7 @@ Seguir `docs/SETUP.md`.
 2. Logar com outro e-mail → "sem permissão".
 3. Console → Firestore → Regras → Playground: escrita sem login → **negada**; leitura sem login → **permitida**.
 
-## [ ] E3 — Cadastros: jogadores, etapas, regulamentos
+## [X] E3 — Cadastros: jogadores, etapas, regulamentos
 - Admin: CRUD de jogadores (bloqueia nome duplicado), criar etapa (tipo, vagas, tabelas de pontos pré-preenchidas e editáveis), links de regulamento.
 - Página pública Regulamentos.
 
@@ -40,6 +40,16 @@ Seguir `docs/SETUP.md`.
 
 ## [ ] E4 — Montagem de grupos + confrontos automáticos
 **Teste:** grupo de 5 → **10** partidas; grupo de 6 → **15**. Mesmo jogador não entra em dois grupos da mesma etapa.
+
+## [ ] E4.1 — Temporada + etapa selecionada entre abas
+- Campo **Temporada** (ano) na etapa: preenchido com o ano atual ao criar, editável. Etapas sem o campo são tratadas como 2026.
+- A etapa escolhida no seletor (Grupos/Geral/Chaves) é mantida ao trocar de aba.
+- Base para a E10/E11: Rank e Top 8 da Finals filtram por temporada.
+
+**Teste:**
+1. Abrir a 3ª Etapa no admin → campo Temporada = 2026 → salvar.
+2. Criar etapa nova → Temporada já vem com o ano atual.
+3. Com 2 etapas, escolher a mais antiga em Grupos, trocar para Geral e voltar → a escolha continua.
 
 ## [ ] E5 — Motor de cálculo (lógica pura + testes)
 - `src/lib/engine/`: validação de placar, estatísticas, ordenação com desempate e detecção de empate total.
@@ -73,14 +83,14 @@ Seguir `docs/SETUP.md`.
 4. Lançar jogo de oitavas → chave trava; "Regenerar" pede confirmação.
 
 ## [ ] E10 — Pontuação + importação da 2ª Etapa + Rank da temporada
-- Botão "Finalizar etapa" (grava `ranking_por_etapa`), importação CSV com revisão de nomes, tela do Rank com Top 8 destacado.
+- Botão "Finalizar etapa" (grava `ranking_por_etapa`), importação CSV com revisão de nomes (2ª Etapa = temporada 2026), tela do Rank com seletor de temporada, Top 8 destacado e detalhamento por jogador (pontos de grupo + mata-mata em cada etapa).
 
 **Teste:**
 1. Importar `docs/dados/etapa2-ranking.csv` → 31 jogadores, totais iguais ao PDF (Diogo Luiz 1400 … Felipe Siqueira 50).
 2. Finalizar uma etapa fictícia → soma acumulada correta no Rank.
 
 ## [ ] E11 — Finals (depende das pendências P1 e P2 da SPEC)
-- Etapa tipo `finals` com os 8 melhores do Rank; não gera pontos.
+- Etapa tipo `finals` com os 8 melhores do Rank **da mesma temporada**; não gera pontos.
 
 **Teste:** criar Finals → 8 jogadores corretos, confrontos conforme formato definido; Rank da temporada não muda.
 

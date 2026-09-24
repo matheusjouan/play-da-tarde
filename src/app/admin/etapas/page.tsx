@@ -11,7 +11,7 @@ import type { Etapa } from "@/lib/types";
 const STATUS = { grupos: "Fase de grupos", mata_mata: "Mata-mata", finalizada: "Finalizada" };
 
 export default function EtapasPage() {
-  const { data, loading, error } = useCollection<Etapa>("etapas", "numero");
+  const { data, loading, error } = useCollection<Etapa>("etapas", { ordenarPor: "numero" });
   const etapas = [...data].reverse();
 
   return (

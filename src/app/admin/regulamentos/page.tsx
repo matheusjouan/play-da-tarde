@@ -10,8 +10,8 @@ import { useCollection } from "@/lib/useCollection";
 import type { Etapa, Regulamento } from "@/lib/types";
 
 export default function AdminRegulamentosPage() {
-  const etapas = useCollection<Etapa>("etapas", "numero");
-  const regulamentos = useCollection<Regulamento>("regulamentos", "titulo");
+  const etapas = useCollection<Etapa>("etapas", { ordenarPor: "numero" });
+  const regulamentos = useCollection<Regulamento>("regulamentos", { ordenarPor: "titulo" });
   const [etapaId, setEtapaId] = useState("");
   const [titulo, setTitulo] = useState("");
   const [link, setLink] = useState("");

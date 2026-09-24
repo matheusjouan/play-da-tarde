@@ -11,7 +11,7 @@ import { useCollection } from "@/lib/useCollection";
 import type { Jogador } from "@/lib/types";
 
 export default function JogadoresPage() {
-  const { data: jogadores, loading, error } = useCollection<Jogador>("jogadores", "nome_normalizado");
+  const { data: jogadores, loading, error } = useCollection<Jogador>("jogadores", { ordenarPor: "nome_normalizado" });
   const [novo, setNovo] = useState("");
   const [busca, setBusca] = useState("");
   const [editando, setEditando] = useState<{ id: string; nome: string } | null>(null);
