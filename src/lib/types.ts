@@ -13,6 +13,8 @@ export type Etapa = {
   id: string;
   nome: string;
   numero: number;
+  /** Ano da temporada. Ausente em etapas antigas → use temporadaDe(). */
+  temporada?: number;
   tipo: TipoEtapa;
   origem: OrigemEtapa;
   status: StatusEtapa;
@@ -24,6 +26,12 @@ export type Etapa = {
   tabela_pontos_mata_mata: PontosMataMata[];
   desempate_geral?: string[];
 };
+
+const TEMPORADA_PADRAO = 2026;
+
+export function temporadaDe(etapa: Pick<Etapa, "temporada">): number {
+  return etapa.temporada ?? TEMPORADA_PADRAO;
+}
 
 export type Jogador = {
   id: string;

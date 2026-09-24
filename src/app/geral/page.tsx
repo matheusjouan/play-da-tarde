@@ -1,10 +1,16 @@
+"use client";
+
+import { EtapaSelect, useEtapaSelecionada } from "@/components/EtapaSelect";
 import { PageHeader } from "@/components/PageHeader";
+import { Vazio } from "@/components/ui";
 
 export default function GeralPage() {
+  const { etapa, lista, setEtapaId } = useEtapaSelecionada();
   return (
     <>
-      <PageHeader title="Classificação Geral" subtitle="Todos os participantes da etapa" />
-      <p className="rounded-lg border border-dashed border-slate-300 p-6 text-center text-slate-500">Em construção</p>
+      <PageHeader title="Classificação Geral" subtitle={etapa?.nome ?? "Todos os participantes da etapa"} />
+      <EtapaSelect lista={lista} etapa={etapa} onChange={setEtapaId} />
+      <Vazio>Em construção</Vazio>
     </>
   );
 }

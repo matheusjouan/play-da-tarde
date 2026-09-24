@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Voltar } from "@/components/Voltar";
 import { Alerta, btnPrimary, Carregando, Vazio } from "@/components/ui";
 import { useCollection } from "@/lib/useCollection";
-import type { Etapa } from "@/lib/types";
+import { temporadaDe, type Etapa } from "@/lib/types";
 
 const STATUS = { grupos: "Fase de grupos", mata_mata: "Mata-mata", finalizada: "Finalizada" };
 
@@ -38,7 +38,7 @@ export default function EtapasPage() {
                 <span className="flex-1">
                   <span className="block font-medium">{e.nome}</span>
                   <span className="block text-sm text-slate-500">
-                    {e.tipo === "finals" ? "Finals" : "Regular"} · {STATUS[e.status]}
+                    {temporadaDe(e)} · {e.tipo === "finals" ? "Finals" : "Regular"} · {STATUS[e.status]}
                     {e.origem === "importado" && " · importada"}
                   </span>
                 </span>

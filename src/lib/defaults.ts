@@ -36,6 +36,7 @@ export function novaEtapaPadrao(numero: number): SemId<Etapa> {
   return {
     nome: `${numero}ª Etapa`,
     numero,
+    temporada: new Date().getFullYear(),
     tipo: "regular",
     origem: "sistema",
     status: "grupos",

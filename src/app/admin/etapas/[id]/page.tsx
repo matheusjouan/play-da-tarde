@@ -9,7 +9,7 @@ import { Voltar } from "@/components/Voltar";
 import { btnPrimary, Carregando, Vazio } from "@/components/ui";
 import { atualizarEtapa, excluirEtapa } from "@/lib/repo";
 import { useCollection } from "@/lib/useCollection";
-import type { Etapa } from "@/lib/types";
+import { temporadaDe, type Etapa } from "@/lib/types";
 
 export default function EditarEtapaPage() {
   const { id } = useParams<{ id: string }>();
@@ -42,7 +42,7 @@ export default function EditarEtapaPage() {
           {/* key: remonta o formulário se outra aba alterar a etapa */}
           <EtapaForm
             key={JSON.stringify(etapa)}
-            inicial={etapa}
+            inicial={{ ...etapa, temporada: temporadaDe(etapa) }}
             numerosEmUso={etapas.filter((e) => e.id !== id).map((e) => e.numero)}
             onSalvar={async ({ ...dados }) => {
               delete (dados as Partial<Etapa>).id;

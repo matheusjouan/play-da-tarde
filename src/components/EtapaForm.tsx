@@ -44,6 +44,7 @@ export function EtapaForm({ inicial, numerosEmUso, onSalvar }: Props) {
     setErro(null);
     if (!e.nome.trim()) return setErro("Informe o nome da etapa.");
     if (e.numero < 1) return setErro("Informe o número da etapa.");
+    if (!e.temporada || e.temporada < 2000 || e.temporada > 2100) return setErro("Informe a temporada (ano com 4 dígitos).");
     if (numerosEmUso.includes(e.numero)) return setErro(`Já existe uma etapa com o número ${e.numero}.`);
 
     // Etapa Finals não pontua: tabelas vazias.
@@ -71,6 +72,14 @@ export function EtapaForm({ inicial, numerosEmUso, onSalvar }: Props) {
             <input className={inputCls} value={e.nome} onChange={(v) => set("nome", v.target.value)} />
           </Field>
         </div>
+        <Field label="Temporada (ano)">
+          <input
+            className={inputCls}
+            inputMode="numeric"
+            value={e.temporada || ""}
+            onChange={(v) => set("temporada", num(v.target.value))}
+          />
+        </Field>
         <Field label="Tipo">
           <select className={inputCls} value={e.tipo} onChange={(v) => set("tipo", v.target.value as Etapa["tipo"])}>
             <option value="regular">Regular (pontua no Rank)</option>

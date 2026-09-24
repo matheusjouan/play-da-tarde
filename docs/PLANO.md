@@ -38,7 +38,7 @@ Seguir `docs/SETUP.md`.
 3. Mudar 1º lugar para 450 → salvou.
 4. Deslogado: vê regulamentos, sem botões de edição.
 
-## [ ] E4 — Montagem de grupos + confrontos automáticos
+## [X] E4 — Montagem de grupos + confrontos automáticos
 **Teste:** grupo de 5 → **10** partidas; grupo de 6 → **15**. Mesmo jogador não entra em dois grupos da mesma etapa.
 
 ## [ ] E4.1 — Temporada + etapa selecionada entre abas
@@ -53,12 +53,12 @@ Seguir `docs/SETUP.md`.
 
 ## [ ] E5 — Motor de cálculo (lógica pura + testes)
 - `src/lib/engine/`: validação de placar, estatísticas, ordenação com desempate e detecção de empate total.
-- Testes Vitest: exemplo do STB (Matheus +3 / Thiago −1), W.O., empates em cadeia, grupo de 6.
+- Testes Vitest: exemplo do STB (Matheus +3 / Thiago −1), W.O., empates em cadeia, grupo de 6, e o **caso real do Grupo H** (`docs/dados/teste-grupo-h.md`, jogos parciais).
 
 **Teste:** `npm test` → tudo verde. (Opcional: me passe um grupo real com placares para virar teste.)
 
 ## [ ] E6 — Dashboard de grupos + edição de placar
-- Accordion por grupo, tabela, jogos, modal de placar (admin), tag W.O., aviso de empate total + tela de desempate manual.
+- Accordion por grupo, tabela de classificação no formato da planilha (Pos · Jogador · Vitórias · Derrotas · Saldo Sets · Saldo Games, scroll horizontal no celular), jogos com placar, modal de placar (admin), tag W.O., aviso de empate total + tela de desempate manual.
 
 **Teste:**
 1. `6x3, 4x6, STB 10x3` → vencedor: saldo sets 0, games +3; perdedor: sets 0, games −1.

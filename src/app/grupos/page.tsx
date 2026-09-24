@@ -5,11 +5,11 @@ import { PageHeader } from "@/components/PageHeader";
 import { Alerta, Card, Carregando, Vazio } from "@/components/ui";
 import { chavePar, gerarConfrontos } from "@/lib/engine/confrontos";
 import { useCollection } from "@/lib/useCollection";
-import type { Etapa, Grupo, Jogador, Partida } from "@/lib/types";
+import type { Grupo, Jogador, Partida } from "@/lib/types";
 
 export default function GruposPage() {
-  const etapas = useCollection<Etapa>("etapas");
-  const { etapa, lista, setEtapaId } = useEtapaSelecionada(etapas.data);
+  const etapas = useEtapaSelecionada();
+  const { etapa, lista, setEtapaId } = etapas;
   const jogadores = useCollection<Jogador>("jogadores");
   const grupos = useCollection<Grupo>("grupos", { onde: { campo: "etapaId", igual: etapa?.id } });
   const partidas = useCollection<Partida>("partidas", { onde: { campo: "etapaId", igual: etapa?.id } });

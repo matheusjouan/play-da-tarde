@@ -4,6 +4,7 @@ import { Trophy } from "lucide-react";
 import { AuthButton } from "@/components/AuthButton";
 import { AuthProvider } from "@/components/AuthProvider";
 import { BottomNav } from "@/components/BottomNav";
+import { EtapaSelecionadaProvider } from "@/components/EtapaSelect";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -34,7 +35,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <AuthButton />
             </div>
           </header>
-          <main className="mx-auto w-full max-w-3xl flex-1 px-4 pt-4 pb-24">{children}</main>
+          <main className="mx-auto w-full max-w-3xl flex-1 px-4 pt-4 pb-24">
+            <EtapaSelecionadaProvider>{children}</EtapaSelecionadaProvider>
+          </main>
           <BottomNav />
         </AuthProvider>
       </body>
