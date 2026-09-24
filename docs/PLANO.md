@@ -8,11 +8,11 @@ Para iniciar uma etapa numa sessão nova com a IA:
 
 ---
 
-## [ ] E0 — Instalação e scaffold (você)
+## [X] E0 — Instalação e scaffold (você)
 Seguir `docs/SETUP.md`.
 **Teste:** `npm run dev` → http://localhost:3000 mostra a página padrão do Next.
 
-## [ ] E1 — Layout base mobile + deploy
+## [X] E1 — Layout base mobile + deploy
 - Bottom bar: Grupos · Geral · Chaves · Rank · Regulamentos (páginas vazias).
 - `CLAUDE.md` com convenções do projeto.
 - Você: push no GitHub + import na Vercel (com as variáveis de ambiente).

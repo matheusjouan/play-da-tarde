@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // indicador do modo dev no topo, para não cobrir a bottom bar
-  devIndicators: { position: "top-right" },
+  // indicador do modo dev desligado: cobria o header ou a bottom bar
+  devIndicators: false,
 };
 
 export default nextConfig;
