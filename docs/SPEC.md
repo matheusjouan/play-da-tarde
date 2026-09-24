@@ -1,196 +1,177 @@
 # ESPECIFICAÇÃO — Sistema de Gestão de Torneio de Tênis "Play da Tarde"
-**Versão:** 1.1 (v1.0 + decisões validadas em 24/09/2026 — ver seção 10)
-**Abordagem:** Specification-Driven Development (SDD), por etapas incrementais — ver `docs/PLANO.md`
+**Versão:** 1.2 — 24/09/2026 (v1.0 original + decisões validadas durante a implementação)
+**Abordagem:** Specification-Driven Development (SDD), por etapas incrementais
+
+> Este documento descreve **o que o sistema faz** (regras). O **porquê** de cada regra está em [`DECISOES.md`](DECISOES.md);
+> **onde** está no código, em [`ARQUITETURA.md`](ARQUITETURA.md). Índice geral: [`README.md`](README.md).
 
 ---
 
 ## 1. STACK TÉCNICA
 
-- **Frontend:** Next.js (App Router) + **TypeScript** + Tailwind CSS + Lucide Icons
+- **Frontend:** Next.js 16 (App Router) + **TypeScript** + Tailwind CSS v4 + Lucide Icons
 - **Backend/DB/Auth:** Firebase (Firestore + Firebase Auth, Google Provider) — SDK client, sem servidor próprio
-- **Testes:** Vitest (motor de cálculo)
-- **Hospedagem:** Vercel (free tier)
-
-> TypeScript é obrigatório: a lógica de classificação e chaveamento é o núcleo crítico do sistema.
+- **Testes:** Vitest (motor de cálculo em `src/lib/engine/`)
+- **Hospedagem:** Vercel (free tier), deploy automático a cada `git push` na `main`
 
 ---
 
 ## 2. DIRETRIZ DE DESIGN (MOBILE-FIRST)
 
-- Touch targets mínimo 44px.
-- Tabelas com scroll horizontal suave ou cards expansíveis.
-- Navegação por bottom bar.
-- Árvore mata-mata em telas pequenas: tabs "Oitavas/Quartas/Semi/Final".
-- Dados sempre em tempo real (listeners `onSnapshot` do Firestore) desde a primeira tela.
+- Alvos de toque ≥ 44px; nenhuma página com rolagem lateral em 375px.
+- Navegação por bottom bar: **Grupos · Geral · Chaves · Rank · Regras**.
+- Listas longas em **acordeão**: todos começam fechados, **um aberto por vez**, o aberto rola até o topo.
+- Tabelas com a coluna do nome fixa; nomes longos cortados com "…".
+- Mata-mata no celular: abas **Oitavas / Quartas / Semi / Final**.
+- Dados sempre em **tempo real** (listeners `onSnapshot`).
 
 ---
 
 ## 3. REGRAS DE NEGÓCIO
 
-### 3.1 Estrutura
-- Padrão atual: 40 jogadores, 8 grupos de 5 (todos contra todos dentro do grupo). Etapas futuras seguem esse formato.
-- O sistema continua **genérico** (nº de grupos e tamanho de grupo livres), pois a 2ª Etapa teve 6 grupos (5×5 + 1×6).
+### 3.1 Estrutura e temporada
+- Padrão: 40 jogadores, 8 grupos de 5 (todos contra todos). O sistema é **genérico** (nº e tamanho de grupos livres) — a 2ª Etapa teve 6 grupos (5×5 + 1×6).
+- Cada etapa pertence a uma **temporada** (ano). Etapas sem o campo = **2026**.
+- **Número da etapa é único dentro da temporada** (2027 pode ter "1ª Etapa" de novo).
+- **Etapa mais recente** = maior temporada, depois maior número.
 - Tipos de etapa:
   - `regular` — pontua para o Rank da temporada.
-  - `finals` — **não pontua**; reúne os 8 melhores do Rank da temporada para decidir o campeão do ano (formato: ver pendência P2).
+  - `finals` — **não pontua**; Top 8 do Rank da temporada disputa o título do ano (3.9).
+- Origem: `sistema` (jogada no app) ou `importado` (só pontos, via CSV).
 
-### 3.2 Classificação para Ouro / Prata (regra genérica)
-Cada etapa configura `vagas_ouro` (padrão 16) e `vagas_prata` (padrão 16).
-1. Ordena todos os jogadores da etapa por: **posição no grupo** (asc) → vitórias → saldo de sets → saldo de games → desempate manual.
-2. Os primeiros `vagas_ouro` vão para a **Ouro**; os próximos `vagas_prata` para a **Prata**; o restante é eliminado.
-
-Exemplos:
-- 8 grupos de 5: 1º/2º → Ouro (16), 3º/4º → Prata (16), 5º → eliminado.
-- 2ª Etapa (6 grupos, 31 jogadores): 1º/2º (12) + 4 melhores 3º → Ouro; os 15 restantes → Prata (1 bye).
+### 3.2 Classificação para Ouro / Prata
+Cada etapa configura `vagas_ouro` e `vagas_prata` (padrão 16/16, máx. 16 por chave).
+1. Ordena todos por: **posição no grupo** → vitórias → saldo de sets → saldo de games → ordem manual.
+2. Primeiros `vagas_ouro` → **Ouro**; próximos `vagas_prata` → **Prata**; restante → eliminado.
+- 8×5: 1º/2º Ouro, 3º/4º Prata, 5º eliminado. 2ª Etapa: 1º/2º + 4 melhores 3º na Ouro; os 15 restantes na Prata.
+- Empate total **só é sinalizado quando decide a vaga** (atravessa a linha de corte) e com todos os grupos encerrados.
 
 ### 3.3 Formato de partida
-- Melhor de 3 sets, vantagem tradicional. Sets válidos: 6x0…6x4, 7x5, 7x6.
-- Em 1 set a 1, o 3º set é um **Super Tie-Break** de 10 pontos (mínimo 10, diferença mínima de 2).
+- Melhor de 3 sets. Sets válidos: **6x0…6x4, 7x5, 7x6**.
+- Em 1 set a 1, o 3º set é **Super Tie-Break**: mínimo 10 pontos e 2 de diferença (acima de 10, diferença exata de 2: 12x10 vale, 13x10 não).
 - **O Super Tie-Break NÃO conta como set** e seus pontos não entram como games.
   - Vencedor do STB: **+2** no saldo de games. Perdedor: nada.
-  - Exemplo: Matheus 6x3, 4x6, STB 10x3 →
-    Matheus: 1 vitória, saldo de sets **0**, saldo de games (10−9) + 2 = **+3**.
-    Thiago: 1 derrota, saldo de sets **0**, saldo de games (9−10) = **−1**.
+  - Ex.: Matheus 6x3, 4x6, STB 10x3 → Matheus: sets **0**, games (10−9)+2 = **+3**. Thiago: sets **0**, games **−1**.
+- Placar inválido não é aceito na tela; jogos sem placar válido são ignorados no cálculo (tabela funciona com grupo incompleto).
 
 ### 3.4 W.O.
-- Lançado como placar normal 6x0 / 6x0. Sem campo especial, sem regra de acúmulo.
-- Tag visual "W.O." exibida quando o placar é 6x0/6x0 (só visual).
+- Lançado como **6x0 6x0** (atalho "W.O. p/ Fulano"). Conta como jogo normal. Tag "W.O." só visual.
 
-### 3.5 Critérios de desempate (grupo e geral)
-1. Vitórias (desc.) 2. Saldo de Sets (desc.) 3. Saldo de Games (desc., com a regra do STB)
-4. **Empate total:** o sistema **avisa** e o **admin define a ordem manualmente** (ordem salva; nada aleatório).
+### 3.5 Desempate na fase de grupos
+1. Vitórias 2. Saldo de sets 3. Saldo de games (com a regra do STB)
+4. **Empate total:** o sistema avisa (só com o grupo encerrado) e o **admin define a ordem** (sorteio feito fora do sistema). Ordem salva por grupo.
 
 ### 3.6 Substituição de jogador
-- Admin troca participante: as partidas do jogador antigo no grupo são **apagadas**, os confrontos do novo são criados, tabela do grupo e geral recalculadas.
+- O novo jogador entra **na mesma posição** do antigo; os jogos do antigo no grupo são **apagados** (inclusive com placar); são criados os confrontos do novo; os demais jogos ficam intactos.
 - O jogador que saiu **não pontua** na etapa.
 
-### 3.7 Chaveamento mata-mata (Ouro e Prata)
-- A chave só é gerada quando **todos os jogos da fase de grupos estiverem finalizados**.
-- Seeds #1…#N pelo ranking geral dos classificados daquela chave (Vitórias > Saldo Sets > Saldo Games > desempate manual).
-- Tamanho da chave = próxima potência de 2 ≥ N. Seeds ausentes viram **bye** (beneficia os seeds mais altos).
-- Ordem das posições na chave de 16 (soma 17 + quadrantes padrão):
-  - Metade de cima: `1×16, 8×9, 5×12, 4×13`
-  - Metade de baixo: `3×14, 6×11, 7×10, 2×15`
-  - #1 e #2 só podem se encontrar na final.
-- A chave **trava** assim que o 1º jogo do mata-mata tiver placar. Admin tem botão "Regenerar chave" (com confirmação; apaga resultados do mata-mata).
-- Mesmo formato de partida da seção 3.3.
+### 3.7 Chaves Ouro e Prata
+- A chave oficial só pode ser **gerada pelo admin** quando **todos os jogos de grupo** estiverem encerrados. Antes disso, **prévia pública** calculada ao vivo.
+- **Seeds:** entre os classificados da chave, por vitórias → saldo de sets → saldo de games; empate total mantém a ordem da classificação geral e é sinalizado ao admin. (Um 2º de grupo pode ser seed #1.)
+- **Posições (soma 17 + quadrantes):** `1×16, 8×9, 5×12, 4×13 | 3×14, 6×11, 7×10, 2×15`. #1 e #2 só se cruzam na final.
+- **Tamanho** = próxima potência de 2 (2, 4, 8 ou 16). Seeds ausentes = **bye** para os melhores seeds (avançam direto).
+- Vencedor **avança automaticamente**. Não se pode mudar o vencedor de um jogo cujo jogo seguinte já tem placar.
+- **Ajustar seeds** (reordenar manualmente) só antes do 1º resultado. Com resultado, a chave **trava**; **Regenerar** exige confirmação dupla e apaga os placares do mata-mata.
+- Aviso ao admin se a classificação dos grupos mudar depois da geração.
+- ⚠️ Em aberto com a organização: jogadores do **mesmo grupo** podem se cruzar nas oitavas (hoje resolvido caso a caso com "Ajustar seeds").
 
-### 3.8 Pontuação / Rank da temporada
-- Cada etapa `regular` tem sua própria tabela de pontos, editável. Valores **padrão** sugeridos (extraídos da 2ª Etapa):
+### 3.8 Pontuação e Rank da temporada
+- Cada etapa `regular` tem tabela de pontos própria e editável. **Padrão** (da 2ª Etapa):
   - Grupo: 1º=400, 2º=320, 3º=260, 4º=200, 5º=40, 6º=25
   - Ouro: campeão=1000, vice=650, semi=400, quartas=200, oitavas=100
   - Prata: campeão=250, vice=165, semi=100, quartas=50, oitavas=25
-- Pontos do jogador na etapa = pontos da posição no grupo + pontos da fase alcançada no mata-mata.
-- Etapas `finals` não geram pontos.
-- **Temporada:** cada etapa pertence a uma temporada (ano). Todas as etapas até agora (incl. 2ª Etapa importada) são **2026**.
-- **Rank da temporada = soma** de `ranking_por_etapa` das etapas `regular` **daquela temporada** (desempate: ver pendência P1). A Finals usa o Top 8 da própria temporada.
-- As abas Grupos, Geral e Chaves são **por etapa** (seletor, padrão = mais recente; a escolha é mantida entre abas). O Rank é **por temporada**, com detalhamento por jogador em cada etapa.
-- Etapas importadas (`origem: "importado"`) guardam só os pontos. Etapas do sistema calculam a partir das partidas e gravam `ranking_por_etapa` ao **Finalizar etapa**.
-- Deve ser possível cadastrar etapas retroativas (ex.: 1ª Etapa) via importação, sem mudar código.
+- Pontos na etapa = pontos da **posição no grupo** + pontos da **fase alcançada** na chave (bye não conta como jogo; eliminado só leva os do grupo).
+- **Finalizar etapa** (admin): exige grupos e mata-matas completos; grava `ranking_por_etapa` e marca a etapa como finalizada. Se resultados mudarem depois, o admin **atualiza a pontuação**.
+- Etapas **importadas** guardam só os pontos (CSV: `nome, pontos_grupo, pontos_mata_mata[, pontos_total, posicao_final]`).
+- **Rank da temporada** = soma das etapas regulares **finalizadas ou importadas** da temporada. Empates dividem a posição.
+- **Empate em pontos** que atravessa a 8ª vaga: o sistema avisa e o **admin define a ordem** (salva por temporada).
+- Top 8 destacado (vagas na Finals). Detalhamento por jogador em cada etapa.
+
+### 3.9 Finals
+- Etapa `finals` da temporada: **mata-mata direto** com o **Top 8 do Rank**, seeds pela posição: `1×8, 4×5, 3×6, 2×7` → Semi → Final. Mesmo formato de partida (3.3). **Não gera pontos.**
+- Não pode ser gerada com empate não resolvido na 8ª vaga; avisa se ainda houver etapa da temporada não finalizada.
+- **Prévia da chave só para o admin**; o público vê "chave em breve" + Top 8 atual.
+- Card 🏆 da Finals na aba Rank: vagas → chave divulgada → campeão.
+
+### 3.10 Navegação por etapa
+- Grupos, Geral e Chaves são **por etapa**, com seletor (padrão = mais recente; escolha mantida entre abas; agrupado por temporada).
+- **Grupos e Geral ignoram a Finals.** Rank é **por temporada**.
 
 ---
 
 ## 4. SCHEMA FIRESTORE
 
 ```
-etapas/{etapaId}
-  nome, numero, data_inicio, data_fim (texto livre)
-  temporada: number                    // ano, ex.: 2026 (ausente = 2026)
-  tipo: "regular" | "finals"
-  origem: "sistema" | "importado"
+etapas/{auto}
+  nome, numero, temporada?, data_inicio, data_fim (texto livre)
+  tipo: "regular" | "finals"          origem: "sistema" | "importado"
   status: "grupos" | "mata_mata" | "finalizada"
-  vagas_ouro: number, vagas_prata: number
+  vagas_ouro, vagas_prata
   tabela_pontos_grupo: [{ posicao, pontos }]
   tabela_pontos_mata_mata: [{ fase: "campeao"|"vice"|"semi"|"quartas"|"oitavas", chave: "ouro"|"prata", pontos }]
-  desempate_geral?: jogadorId[]        // ordem manual p/ empates totais na classificação geral
+  desempate_geral?: jogadorId[]
 
-grupos/{grupoId}
-  etapaId, nome ("Grupo A"), jogadorIds: string[]
-  desempate_manual?: jogadorId[]       // ordem manual p/ empates totais no grupo
+grupos/{auto}
+  etapaId, nome ("Grupo A"), jogadorIds[], desempate_manual?: jogadorId[]
 
-jogadores/{jogadorId}
+jogadores/{auto}
   nome, nome_normalizado (minúsculo, sem acento — evita duplicidade)
 
-partidas/{partidaId}
-  etapaId, grupoId?                    // grupoId só na fase de grupos
-  fase: "grupo" | "oitavas" | "quartas" | "semi" | "final"
-  chave?: "ouro" | "prata"
-  slot?: number                        // posição na chave (mata-mata)
-  jogador1Id, jogador2Id (null = bye/aguardando)
-  sets: [{ games1, games2, superTieBreak?: boolean }]
-  vencedorId: string | null
+partidas/{grupoId}__{jogadorA}__{jogadorB}          ← fase de grupos (A < B)
+partidas/{etapaId}__{chave}__{fase}__{slot}         ← mata-mata
+  etapaId, grupoId?, fase: "grupo"|"oitavas"|"quartas"|"semi"|"final"
+  chave?: "ouro"|"prata", slot?: number
+  jogador1Id, jogador2Id (null = bye / a definir)
+  sets: [{ games1, games2, superTieBreak? }], vencedorId
 
-chaves/{etapaId}_{ouro|prata}
-  etapaId, chave, seeds: jogadorId[], travada: boolean
+chaves/{etapaId}_{ouro|prata}                        ← Finals usa "ouro"
+  etapaId, chave, seeds: jogadorId[] (#1 primeiro), ajusteManual?
+  (travada = derivado: algum jogo do mata-mata com placar)
 
 ranking_por_etapa/{etapaId}_{jogadorId}
   jogadorId, etapaId, origem
-  posicao_grupo?, fase_mata_mata?, chave?
+  posicao_grupo?, posicao_final?, chave?, fase_mata_mata?
   pontos_grupo, pontos_mata_mata, pontos_total
 
 temporadas/{ano}
-  desempate_rank?: jogadorId[]          // ordem manual de empatados em pontos no Rank
+  desempate_rank?: jogadorId[]
 
-regulamentos/{regulamentoId}
-  etapaId, titulo, link (Google Drive)
+regulamentos/{auto}
+  etapaId, titulo, link (https)
 ```
 
 ---
 
 ## 5. TELAS
 
-1. **Regulamentos** — links por etapa.
-2. **Grupos** — accordion por grupo, classificação, confrontos, "Editar Placar" (admin).
-3. **Classificação Geral da etapa** — todos os jogadores, grupo de origem, métricas, destino (Ouro/Prata/eliminado).
-4. **Chaves Ouro / Prata** — árvore responsiva em tempo real.
-5. **Rank da temporada** — soma de todas as etapas regulares, ordenável, destaque do Top 8 (vaga na Finals).
-6. **Admin** — etapas (tipo, vagas, tabelas de pontos), jogadores, grupos, substituição, regulamentos, importação CSV, regenerar chave, finalizar etapa, desempates manuais.
+| Aba / tela | Conteúdo |
+|---|---|
+| **Grupos** | Acordeão por grupo: classificação, jogos, placar (admin), desempate manual |
+| **Geral** | Blocos Ouro / Prata / Eliminados com grupo de origem; parcial ou final |
+| **Chaves** | Ouro/Prata ou Finals: abas por fase, seeds, byes, campeão; ferramentas do admin |
+| **Rank** | Card da Finals, Top 8, detalhe por etapa, por pontos/nome, seletor de temporada |
+| **Regras** | Links de regulamento por etapa |
+| **Admin** | Jogadores · Etapas (grupos, pontuação) · Regulamentos · Importar etapa (CSV) |
 
 ---
 
 ## 6. AUTENTICAÇÃO E PERMISSÕES
 
-- **Público (sem login):** leitura de tudo.
-- **Admin (Google Auth):** única escrita.
-- Regra imposta nas **Firestore Security Rules** (não só na UI):
-  `read: if true;` e `write: if request.auth != null && request.auth.token.email_verified == true && request.auth.token.email in [lista de admins]`.
+- **Público:** leitura de tudo. **Admin (Google):** única escrita.
+- Imposto em `firestore.rules`: `write` só com `request.auth.token.email_verified == true` e e-mail na lista de admins. A UI (`NEXT_PUBLIC_ADMIN_EMAILS`) só espelha.
+- Para adicionar admin: incluir o e-mail **nos dois lugares** e republicar as regras.
 
 ---
 
 ## 7. DADOS HISTÓRICOS
 
-- 2ª Etapa: `docs/dados/etapa2-ranking.csv` (31 jogadores; importação pela tela Admin).
-- 1ª Etapa: indisponível; caminho aberto via importação futura.
+- 2ª Etapa (2026): `docs/dados/etapa2-ranking.csv` — importada.
+- 1ª Etapa: indisponível; pode ser importada no futuro pela mesma tela.
+- Casos de teste reais: `docs/dados/teste-grupo-h.md`, `docs/dados/teste-finals-2099.csv`.
 
 ---
 
-## 8. PENDÊNCIAS EM ABERTO
+## 8. PENDÊNCIAS
 
-- ~~P1~~ **Resolvida:** empate em pontos no Rank da temporada → o sistema avisa e o **admin define a ordem** (sorteio/decisão da organização). Guardado em `temporadas/{ano}.desempate_rank`.
-- ~~P2~~ **Resolvida:** Finals = **mata-mata direto** com o Top 8 do Rank da temporada, seeds pela posição no Rank: `1×8, 4×5, 3×6, 2×7` → Semi → Final. Mesmo formato de partida (3.3). Não gera pontos.
-
----
-
-## 9. PLANO DE DESENVOLVIMENTO
-
-Ver `docs/PLANO.md`.
-
----
-
-## 10. HISTÓRICO DE DECISÕES (24/09/2026)
-
-| Tema | Decisão |
-|---|---|
-| Quadrantes | Padrão profissional (seção 3.7) |
-| Grupos menores | Vagas por etapa; completa com melhores da posição seguinte (3.2) |
-| Empate total | Admin define manualmente; sistema avisa (3.5) |
-| Início do mata-mata | Só após todos os jogos de grupo finalizados (3.7) |
-| Dados 2ª Etapa | `origem: "importado"`; base p/ Top 8 da Finals |
-| Finals | Tipo de etapa sem pontos (3.1) |
-| Tamanho de grupos | 8×5 daqui em diante; sistema segue genérico |
-| Super Tie-Break | **Não conta como set**; +2 games ao vencedor (3.3) |
-| Substituição | Jogador que saiu não pontua (3.6) |
-| Temporada | Etapas têm ano; Rank e Finals por temporada; todas as etapas atuais = 2026 (3.8) |
-| Navegação | Grupos/Geral/Chaves por etapa com seletor mantido entre abas; Rank por temporada (3.8) |
-| Desempate do Rank (P1) | Admin define a ordem manualmente |
-| Formato da Finals (P2) | Mata-mata direto do Top 8: 1×8, 4×5, 3×6, 2×7 |
+- Organização: aceitar ou não jogadores do **mesmo grupo** se cruzarem nas oitavas (3.7).
+- Todas as demais pendências (P1, P2) foram resolvidas — ver `DECISOES.md`.

@@ -1,108 +1,93 @@
 # PLANO DE IMPLEMENTAÇÃO — Play da Tarde
 
 Regra de ouro: **só avança para a próxima etapa depois que o teste manual da atual passar.**
-Marque `[x]` quando validar. Regras de negócio: `docs/SPEC.md`.
+Regras: [`SPEC.md`](SPEC.md) · Decisões: [`DECISOES.md`](DECISOES.md) · Entregas: [`CHANGELOG.md`](CHANGELOG.md) · Código: [`ARQUITETURA.md`](ARQUITETURA.md)
 
 Para iniciar uma etapa numa sessão nova com a IA:
-> "Implementar a etapa E<n> do docs/PLANO.md"
+> "Implementar a etapa <id> do docs/PLANO.md"
 
 ---
 
-## [X] E0 — Instalação e scaffold (você)
-Seguir `docs/SETUP.md`.
-**Teste:** `npm run dev` → http://localhost:3000 mostra a página padrão do Next.
+## Status
 
-## [X] E1 — Layout base mobile + deploy
-- Bottom bar: Grupos · Geral · Chaves · Rank · Regulamentos (páginas vazias).
-- `CLAUDE.md` com convenções do projeto.
-- Você: push no GitHub + import na Vercel (com as variáveis de ambiente).
+| Etapa | Entrega | Status |
+|---|---|---|
+| E0 | Instalação e scaffold | ✅ Validada |
+| E1 | Layout mobile + deploy Vercel | ✅ Validada |
+| E2 | Login Google + Firestore Rules | ✅ Validada |
+| E3 | Cadastros: jogadores, etapas, regulamentos | ✅ Validada |
+| E4 | Grupos + confrontos automáticos | ✅ Validada |
+| E4.1 | Temporada + etapa selecionada entre abas | ✅ Validada |
+| E5 | Motor de cálculo (testes) | ✅ Validada |
+| E6 | Placar + classificação de grupos | ✅ Validada |
+| E7 | Classificação geral | ✅ Validada |
+| E8 | Substituição de jogador | ✅ Validada |
+| E9 | Chaves Ouro e Prata | ✅ Validada |
+| E10 | Pontuação, importação, Rank | ✅ Validada |
+| E11 | Finals + desempate do Rank | 🟡 Implementada — aguardando validação final |
+| E12 | Virada de temporada, acesso à Finals, polimento mobile | 🟡 Implementada — bug de camadas corrigido; aguardando validação final |
 
-**Teste:** abrir a URL da Vercel **no celular**; navegar pelas 5 abas; botões fáceis de tocar.
+Legenda: ✅ validada pelo usuário · 🟡 implementada, falta o teste manual · ⬜ não iniciada
 
-## [X] E2 — Firebase + login Google + Security Rules
-- `src/lib/firebase.ts`, botão "Entrar como admin", hook `useIsAdmin`, arquivo `firestore.rules`.
-- Você: colar/publicar as regras no Console; adicionar o domínio da Vercel em Authentication → Settings → Authorized domains.
+---
 
+## Etapas concluídas (resumo e teste de aceite)
+
+**E0 — Setup.** `docs/SETUP.md`. Aceite: `npm run dev` abre a página do Next.
+
+**E1 — Layout base.** Bottom bar com 5 abas, `CLAUDE.md`, deploy Vercel. Aceite: navegação no celular pela URL da Vercel.
+
+**E2 — Login e segurança.** Aceite: seu e-mail → "Admin"; outro → "Sem permissão"; Rules Playground: escrita sem login negada, leitura permitida.
+
+**E3 — Cadastros.** Aceite: jogador duplicado (com/sem acento) bloqueado; tabela de pontos editável; deslogado sem botões de edição.
+
+**E4 — Grupos.** Aceite: grupo de 5 → 10 jogos; de 6 → 15; jogador não entra em dois grupos da etapa.
+
+**E4.1 — Temporada.** Aceite: temporada preenchida com o ano; etapa escolhida mantida entre abas.
+
+**E5 — Motor.** Aceite: `npm test` verde; STB (Matheus +3 / Thiago −1); caso real do Grupo H (`docs/dados/teste-grupo-h.md`).
+
+**E6 — Placar.** Aceite: `6x3 4x6 [10x3]` → sets 0 / games +3 e −1; W.O.; `6x5` e STB `10x9` bloqueados; tempo real entre abas; acordeão um aberto por vez.
+
+**E7 — Geral.** Aceite: 8×5 → 1º/2º Ouro, 3º/4º Prata, 5º eliminado; ordem igual ao cálculo manual.
+
+**E8 — Substituição.** Aceite: jogos do antigo somem, novos confrontos criados, demais placares intactos.
+
+**E9 — Chaves.** Aceite: sem geração com jogo de grupo pendente; `1×16, 8×9…`; bye com 15; avanço automático; trava e regenerar com confirmação.
+
+**E10 — Pontuação e Rank.** Aceite: CSV da 2ª Etapa importado (31, Diogo Luiz 1400 … Felipe Siqueira 50); soma entre etapas no Rank.
+
+---
+
+## Etapas em validação
+
+### 🟡 E11 — Finals + desempate do Rank (DEC-021, DEC-022)
+**Teste (temporada fictícia 2099):**
+1. Admin → Importar etapa: nº 98, "Teste 2099", temporada 2099, `docs/dados/teste-finals-2099.csv` (nenhum jogador "novo").
+2. Rank → 2099: Miguel e Bruno empatados em 8º (420) com aviso → "Definir ordem" → Bruno 8º, Miguel 9º.
+3. Nova etapa nº 99, temporada 2099, tipo Finals.
+4. Chaves (etapa 99): deslogado → "ainda não divulgada" + Top 8; admin → prévia `Diogo (1) × Bruno (8)`, 4×5, 3×6, `Samuel (2) × Charles (7)` → Gerar.
+5. Lançar quartas, semi, final → campeão; Rank 2099 não muda; card 🏆 no Rank mostra o campeão.
+6. Limpeza: excluir etapas 99 e 98.
+
+### 🟡 E12 — Virada de temporada e polimento (DEC-020, DEC-023, DEC-024, DEC-026)
 **Teste:**
-1. Logar com seu e-mail → selo "Admin".
-2. Logar com outro e-mail → "sem permissão".
-3. Console → Firestore → Regras → Playground: escrita sem login → **negada**; leitura sem login → **permitida**.
+1. Nova etapa com temporada 2099 aceita o número 1; Admin → Etapas separado por temporada.
+2. Grupos e Geral abrem na última etapa regular e não mostram a Finals.
+3. Rolando Grupos e Geral com bloco aberto, a tabela passa **por trás** do cabeçalho.
+4. Celular real, logado e deslogado: todas as abas, acordeões, abas de fase, Ouro/Prata, modal de placar.
 
-## [X] E3 — Cadastros: jogadores, etapas, regulamentos
-- Admin: CRUD de jogadores (bloqueia nome duplicado), criar etapa (tipo, vagas, tabelas de pontos pré-preenchidas e editáveis), links de regulamento.
-- Página pública Regulamentos.
+---
 
-**Teste:**
-1. Criar 3 jogadores e 1 etapa; conferir no Console (aba Dados).
-2. Tentar criar jogador com nome repetido (com/sem acento) → bloqueado.
-3. Mudar 1º lugar para 450 → salvou.
-4. Deslogado: vê regulamentos, sem botões de edição.
+## Próximos passos (backlog)
 
-## [X] E4 — Montagem de grupos + confrontos automáticos
-**Teste:** grupo de 5 → **10** partidas; grupo de 6 → **15**. Mesmo jogador não entra em dois grupos da mesma etapa.
+| # | Item | Origem | Prioridade |
+|---|---|---|---|
+| B1 | Confirmar com a organização: jogadores do **mesmo grupo** podem se cruzar nas oitavas? Se não, regra automática de separação na geração de seeds. | DEC-014 | Alta (antes do mata-mata da 3ª Etapa) |
+| B2 | Operar a 3ª Etapa real até o fim: placares → gerar chaves → mata-mata → **Finalizar etapa** → conferir Rank. | Uso real | Alta |
+| B3 | Importar a 1ª Etapa se os dados aparecerem (mesma tela/CSV). | SPEC §7 | Quando houver dados |
+| B4 | Segundo admin (se a organização quiser): e-mail em `firestore.rules` + `NEXT_PUBLIC_ADMIN_EMAILS`. | DEC-004 | Sob demanda |
+| B5 | Backup periódico do Firestore (exportação) antes de etapas importantes. | Operação | Média |
+| B6 | Ícone/atalho de app no celular (PWA: "Adicionar à tela inicial"). | UX | Baixa |
 
-## [X] E4.1 — Temporada + etapa selecionada entre abas
-- Campo **Temporada** (ano) na etapa: preenchido com o ano atual ao criar, editável. Etapas sem o campo são tratadas como 2026.
-- A etapa escolhida no seletor (Grupos/Geral/Chaves) é mantida ao trocar de aba.
-- Base para a E10/E11: Rank e Top 8 da Finals filtram por temporada.
-
-**Teste:**
-1. Abrir a 3ª Etapa no admin → campo Temporada = 2026 → salvar.
-2. Criar etapa nova → Temporada já vem com o ano atual.
-3. Com 2 etapas, escolher a mais antiga em Grupos, trocar para Geral e voltar → a escolha continua.
-
-## [X] E5 — Motor de cálculo (lógica pura + testes)
-- `src/lib/engine/`: validação de placar, estatísticas, ordenação com desempate e detecção de empate total.
-- Testes Vitest: exemplo do STB (Matheus +3 / Thiago −1), W.O., empates em cadeia, grupo de 6, e o **caso real do Grupo H** (`docs/dados/teste-grupo-h.md`, jogos parciais).
-
-**Teste:** `npm test` → tudo verde. (Opcional: me passe um grupo real com placares para virar teste.)
-
-## [ ] E6 — Dashboard de grupos + edição de placar
-- Accordion por grupo, tabela de classificação no formato da planilha (Pos · Jogador · Vitórias · Derrotas · Saldo Sets · Saldo Games, scroll horizontal no celular), jogos com placar, modal de placar (admin), tag W.O., aviso de empate total + tela de desempate manual.
-
-**Teste:**
-1. `6x3, 4x6, STB 10x3` → vencedor: saldo sets 0, games +3; perdedor: sets 0, games −1.
-2. `6x0, 6x0` → tag W.O.
-3. `6x5` ou STB `10x9` → bloqueado.
-4. Comparar com cálculo manual.
-5. Duas abas abertas: editar numa, a outra atualiza sozinha.
-
-## [X] E7 — Classificação geral da etapa
-**Teste:** ordem bate com cálculo manual; destino correto (8×5: 1º/2º Ouro, 3º/4º Prata, 5º eliminado).
-
-## [X] E8 — Substituição de jogador
-**Teste:** substituir jogador com 2 jogos → jogos dele somem, novos confrontos criados, tabelas recalculadas.
-
-## [X] E9 — Chaves Ouro e Prata
-- Geração quando todos os jogos de grupo terminarem; seeds, quadrantes, byes; placar do mata-mata avança o vencedor; tabs no celular; trava + "Regenerar chave".
-
-**Teste:**
-1. Com 1 jogo de grupo pendente → chave não é gerada.
-2. Completar os grupos → chave gerada; conferir #1×#16, #8×#9… e #1/#2 em metades opostas.
-3. Chave com 15 jogadores → #1 recebe bye.
-4. Lançar jogo de oitavas → chave trava; "Regenerar" pede confirmação.
-
-## [X] E10 — Pontuação + importação da 2ª Etapa + Rank da temporada
-- Botão "Finalizar etapa" (grava `ranking_por_etapa`), importação CSV com revisão de nomes (2ª Etapa = temporada 2026), tela do Rank com seletor de temporada, Top 8 destacado e detalhamento por jogador (pontos de grupo + mata-mata em cada etapa).
-
-**Teste:**
-1. Importar `docs/dados/etapa2-ranking.csv` → 31 jogadores, totais iguais ao PDF (Diogo Luiz 1400 … Felipe Siqueira 50).
-2. Finalizar uma etapa fictícia → soma acumulada correta no Rank.
-
-## [ ] E11 — Finals (depende das pendências P1 e P2 da SPEC)
-- Etapa tipo `finals` com os 8 melhores do Rank **da mesma temporada**; não gera pontos.
-- P1: empate em pontos no Rank → admin define a ordem (aba Rank, "Definir ordem").
-- P2: mata-mata direto 1×8, 4×5, 3×6, 2×7 → Semi → Final (aba Chaves da etapa Finals).
-- Teste de empate na 8ª vaga: `docs/dados/teste-finals-2099.csv` (temporada fictícia 2099, só nomes já cadastrados).
-
-**Teste:** criar Finals → 8 jogadores corretos, confrontos conforme formato definido; Rank da temporada não muda.
-
-## [ ] E12 — Virada de temporada, acesso à Finals e polimento mobile
-- Número de etapa único **por temporada** (2027 pode ter "1ª Etapa" de novo).
-- "Etapa mais recente" = maior temporada, depois maior número.
-- Seletor de etapa agrupado por temporada; Grupos e Geral ignoram a Finals.
-- Card 🏆 Finals da temporada na aba Rank (segue o seletor de temporada; link direto para a chave; campeão).
-- Prévia da chave da Finals só para admin; público vê "em breve" + Top 8 atual. (Prévia de Ouro/Prata continua pública.)
-- Revisão mobile: sem rolagem lateral, alvos de toque ≥ 44px.
-
-**Teste:** ver roteiro na entrega + roteiro completo em celular real, logado e deslogado.
+Para itens novos: registre aqui, decida em `DECISOES.md`, implemente e anote no `CHANGELOG.md`.

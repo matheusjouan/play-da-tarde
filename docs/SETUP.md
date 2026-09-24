@@ -49,7 +49,7 @@ Se perguntar algo a mais (Turbopack, React Compiler etc.), aceite o padrão (Ent
 ```
 cd play-da-tarde
 npm install firebase lucide-react
-npm install -D vitest
+npm install -D @types/node@24 vitest
 npm pkg set scripts.test="vitest run"
 ```
 
