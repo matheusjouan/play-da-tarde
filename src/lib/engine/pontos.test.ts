@@ -157,4 +157,15 @@ describe("montarRank", () => {
     const r2 = montarRank([...totais.slice(0, 7), 520].map((t, i) => reg(`j${i + 1}`, "e2", t)), ["e2"]);
     expect(empateNoCorte(montarRank([...r2.map((l) => reg(l.jogadorId, "e2", l.total)), reg("x", "e2", 520)], ["e2"]), 8)).toEqual(["j7", "j8", "x"]);
   });
+
+  it("P1: ordem manual do admin resolve o empate e desfaz a posição compartilhada", () => {
+    const regs = [reg("a", "e", 900), reg("b", "e", 520), reg("c", "e", 520), reg("d", "e", 520)];
+    const semOrdem = montarRank(regs, ["e"]);
+    expect(semOrdem.map((l) => l.posicao)).toEqual([1, 2, 2, 2]);
+    expect(empateNoCorte(semOrdem, 2)).toEqual(["b", "c", "d"]);
+
+    const comOrdem = montarRank(regs, ["e"], ["d", "b", "c"]);
+    expect(comOrdem.map((l) => [l.jogadorId, l.posicao])).toEqual([["a", 1], ["d", 2], ["b", 3], ["c", 4]]);
+    expect(empateNoCorte(comOrdem, 2)).toEqual([]);
+  });
 });

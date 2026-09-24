@@ -70,10 +70,10 @@ Seguir `docs/SETUP.md`.
 ## [X] E7 — Classificação geral da etapa
 **Teste:** ordem bate com cálculo manual; destino correto (8×5: 1º/2º Ouro, 3º/4º Prata, 5º eliminado).
 
-## [ ] E8 — Substituição de jogador
+## [X] E8 — Substituição de jogador
 **Teste:** substituir jogador com 2 jogos → jogos dele somem, novos confrontos criados, tabelas recalculadas.
 
-## [ ] E9 — Chaves Ouro e Prata
+## [X] E9 — Chaves Ouro e Prata
 - Geração quando todos os jogos de grupo terminarem; seeds, quadrantes, byes; placar do mata-mata avança o vencedor; tabs no celular; trava + "Regenerar chave".
 
 **Teste:**
@@ -82,7 +82,7 @@ Seguir `docs/SETUP.md`.
 3. Chave com 15 jogadores → #1 recebe bye.
 4. Lançar jogo de oitavas → chave trava; "Regenerar" pede confirmação.
 
-## [ ] E10 — Pontuação + importação da 2ª Etapa + Rank da temporada
+## [X] E10 — Pontuação + importação da 2ª Etapa + Rank da temporada
 - Botão "Finalizar etapa" (grava `ranking_por_etapa`), importação CSV com revisão de nomes (2ª Etapa = temporada 2026), tela do Rank com seletor de temporada, Top 8 destacado e detalhamento por jogador (pontos de grupo + mata-mata em cada etapa).
 
 **Teste:**
@@ -91,6 +91,9 @@ Seguir `docs/SETUP.md`.
 
 ## [ ] E11 — Finals (depende das pendências P1 e P2 da SPEC)
 - Etapa tipo `finals` com os 8 melhores do Rank **da mesma temporada**; não gera pontos.
+- P1: empate em pontos no Rank → admin define a ordem (aba Rank, "Definir ordem").
+- P2: mata-mata direto 1×8, 4×5, 3×6, 2×7 → Semi → Final (aba Chaves da etapa Finals).
+- Teste de empate na 8ª vaga: `docs/dados/teste-finals-2099.csv` (temporada fictícia 2099, só nomes já cadastrados).
 
 **Teste:** criar Finals → 8 jogadores corretos, confrontos conforme formato definido; Rank da temporada não muda.
 

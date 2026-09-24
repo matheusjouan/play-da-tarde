@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { Medal, Trash2, Users } from "lucide-react";
+import { Medal, Network, Trash2, Users } from "lucide-react";
 import { EtapaForm } from "@/components/EtapaForm";
 import { PageHeader } from "@/components/PageHeader";
 import { Voltar } from "@/components/Voltar";
@@ -35,7 +35,7 @@ export default function EditarEtapaPage() {
         <>
           <PageHeader title={etapa.nome} />
           <div className="mb-4 flex gap-2">
-            {etapa.origem === "sistema" && (
+            {etapa.origem === "sistema" && etapa.tipo === "regular" && (
               <Link href={`/admin/etapas/${etapa.id}/grupos`} className={`${btnPrimary} flex-1`}>
                 <Users size={18} /> Montar grupos
               </Link>
@@ -43,6 +43,11 @@ export default function EditarEtapaPage() {
             {etapa.tipo === "regular" && (
               <Link href={`/admin/etapas/${etapa.id}/pontuacao`} className={`${btnSecondary} flex-1`}>
                 <Medal size={18} /> Pontuação
+              </Link>
+            )}
+            {etapa.tipo === "finals" && (
+              <Link href="/chaves" className={`${btnPrimary} flex-1`}>
+                <Network size={18} /> Chave da Finals
               </Link>
             )}
           </div>

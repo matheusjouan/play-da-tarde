@@ -3,67 +3,58 @@
 import { useState } from "react";
 import { AlertTriangle, Trophy } from "lucide-react";
 import { Acordeao, alternar } from "@/components/Acordeao";
+import { useAuth } from "@/components/AuthProvider";
+import { DesempateModal } from "@/components/grupos/DesempateModal";
 import { PageHeader } from "@/components/PageHeader";
-import { Alerta, Carregando, inputCls, Vazio } from "@/components/ui";
+import { Alerta, btnSecondary, Carregando, inputCls, Vazio } from "@/components/ui";
 import { FASES_MATA_MATA } from "@/lib/defaults";
-import { empateNoCorte, montarRank } from "@/lib/engine/rank";
-import { useCollection } from "@/lib/useCollection";
-import { temporadaDe, type Etapa, type FaseMataMata, type Jogador, type RankingPorEtapa } from "@/lib/types";
+import { salvarDesempateRank } from "@/lib/repo";
+import { useRank, VAGAS_FINALS } from "@/lib/useRank";
+import type { FaseMataMata, RankingPorEtapa } from "@/lib/types";
 
-const VAGAS_FINALS = 8;
 const NOME_FASE = Object.fromEntries(FASES_MATA_MATA.map((f) => [f.fase, f.label])) as Record<FaseMataMata, string>;
 
 export default function RankPage() {
-  const etapas = useCollection<Etapa>("etapas");
-  const registros = useCollection<RankingPorEtapa>("ranking_por_etapa");
-  const jogadores = useCollection<Jogador>("jogadores");
+  const { isAdmin } = useAuth();
   const [temporadaEscolhida, setTemporada] = useState<number | null>(null);
   const [ordem, setOrdem] = useState<"pontos" | "nome">("pontos");
   const [aberto, setAberto] = useState<string | null>(null);
+  const [desempatando, setDesempatando] = useState(false);
+  const r = useRank(temporadaEscolhida);
+  const { nome, temporada } = r;
 
-  const nome = (id: string) => jogadores.data.find((j) => j.id === id)?.nome ?? "—";
-  const regulares = etapas.data.filter((e) => e.tipo === "regular");
-  const temporadas = [...new Set(regulares.map(temporadaDe))].sort((a, b) => b - a);
-  const temporada = temporadaEscolhida ?? temporadas[0];
-
-  const etapasTemporada = regulares.filter((e) => temporadaDe(e) === temporada).sort((a, b) => a.numero - b.numero);
-  const contam = etapasTemporada.filter((e) => registros.data.some((r) => r.etapaId === e.id));
-  const emAndamento = etapasTemporada.filter((e) => !contam.includes(e));
-  const etapaDe = (id: string) => etapas.data.find((e) => e.id === id);
-
-  const rank = montarRank(registros.data, contam.map((e) => e.id));
   const linhas =
     ordem === "nome"
-      ? [...rank].sort((a, b) => nome(a.jogadorId).localeCompare(nome(b.jogadorId)))
-      : [...rank].sort((a, b) => a.posicao - b.posicao || nome(a.jogadorId).localeCompare(nome(b.jogadorId)));
-  const empateCorte = empateNoCorte(rank, VAGAS_FINALS);
+      ? [...r.linhas].sort((a, b) => nome(a.jogadorId).localeCompare(nome(b.jogadorId)))
+      : [...r.linhas].sort((a, b) => a.posicao - b.posicao || nome(a.jogadorId).localeCompare(nome(b.jogadorId)));
 
-  const detalhe = (r: RankingPorEtapa) =>
+  const detalhe = (reg: RankingPorEtapa) =>
     [
-      r.posicao_final ? `${r.posicao_final}º na etapa` : r.posicao_grupo ? `${r.posicao_grupo}º no grupo` : null,
-      r.chave && r.fase_mata_mata ? `${r.chave === "ouro" ? "Ouro" : "Prata"}: ${NOME_FASE[r.fase_mata_mata]}` : r.origem === "sistema" && !r.chave ? "eliminado" : null,
+      reg.posicao_final ? `${reg.posicao_final}º na etapa` : reg.posicao_grupo ? `${reg.posicao_grupo}º no grupo` : null,
+      reg.chave && reg.fase_mata_mata
+        ? `${reg.chave === "ouro" ? "Ouro" : "Prata"}: ${NOME_FASE[reg.fase_mata_mata]}`
+        : reg.origem === "sistema" && !reg.chave
+          ? "eliminado"
+          : null,
     ]
       .filter(Boolean)
       .join(" · ");
 
-  const loading = etapas.loading || registros.loading || jogadores.loading;
-  const error = etapas.error || registros.error || jogadores.error;
-
   return (
     <>
       <PageHeader title="Rank da Temporada" subtitle={temporada ? `Temporada ${temporada}` : "Pontos acumulados em todas as etapas"} />
-      {error && <Alerta>Erro ao carregar: {error}</Alerta>}
+      {r.error && <Alerta>Erro ao carregar: {r.error}</Alerta>}
 
-      {loading ? (
+      {r.loading ? (
         <Carregando />
       ) : !temporada ? (
         <Vazio>Nenhuma etapa cadastrada.</Vazio>
       ) : (
         <div className="space-y-3">
           <div className="flex gap-2">
-            {temporadas.length > 1 && (
+            {r.temporadas.length > 1 && (
               <select className={`${inputCls} flex-1`} value={temporada} onChange={(e) => setTemporada(Number(e.target.value))} aria-label="Temporada">
-                {temporadas.map((t) => (
+                {r.temporadas.map((t) => (
                   <option key={t} value={t}>
                     Temporada {t}
                   </option>
@@ -85,19 +76,26 @@ export default function RankPage() {
           </div>
 
           <p className="rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-600">
-            {contam.length > 0 ? `Somando: ${contam.map((e) => e.nome).join(", ")}.` : "Nenhuma etapa pontuada ainda."}
-            {emAndamento.length === 1 && ` A ${emAndamento[0].nome} entra quando for finalizada.`}
-            {emAndamento.length > 1 && ` ${emAndamento.map((e) => e.nome).join(", ")} entram quando forem finalizadas.`}
+            {r.contam.length > 0 ? `Somando: ${r.contam.map((e) => e.nome).join(", ")}.` : "Nenhuma etapa pontuada ainda."}
+            {r.emAndamento.length === 1 && ` A ${r.emAndamento[0].nome} entra quando for finalizada.`}
+            {r.emAndamento.length > 1 && ` ${r.emAndamento.map((e) => e.nome).join(", ")} entram quando forem finalizadas.`}
           </p>
 
-          {empateCorte.length > 0 && (
-            <p className="flex gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-              <AlertTriangle size={16} className="mt-0.5 shrink-0" />
-              Empate na disputa da {VAGAS_FINALS}ª vaga da Finals: {empateCorte.map(nome).join(", ")}. Critério de desempate a definir.
-            </p>
+          {r.empateCorte.length > 0 && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+              <p className="flex gap-2">
+                <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+                Empate em pontos na disputa da {VAGAS_FINALS}ª vaga da Finals: {r.empateCorte.map(nome).join(", ")}. A organização define a ordem.
+              </p>
+              {isAdmin && (
+                <button className={`${btnSecondary} mt-2 w-full`} onClick={() => setDesempatando(true)}>
+                  Definir ordem
+                </button>
+              )}
+            </div>
           )}
 
-          {rank.length === 0 ? (
+          {r.linhas.length === 0 ? (
             <Vazio>Sem pontos nesta temporada.</Vazio>
           ) : (
             <div className="space-y-2">
@@ -127,23 +125,20 @@ export default function RankPage() {
                       direita={<span className="text-lg font-bold tabular-nums">{l.total}</span>}
                     >
                       <ul className="divide-y divide-slate-100 text-sm">
-                        {l.porEtapa.map((r) => {
-                          const reg = r as RankingPorEtapa;
-                          return (
-                            <li key={r.etapaId} className="flex items-center gap-3 py-2">
-                              <span className="min-w-0 flex-1">
-                                <span className="block font-medium">{etapaDe(r.etapaId)?.nome}</span>
-                                <span className="block text-xs text-slate-500">{detalhe(reg)}</span>
+                        {l.porEtapa.map((reg) => (
+                          <li key={reg.etapaId} className="flex items-center gap-3 py-2">
+                            <span className="min-w-0 flex-1">
+                              <span className="block font-medium">{r.etapaDe(reg.etapaId)?.nome}</span>
+                              <span className="block text-xs text-slate-500">{detalhe(reg as RankingPorEtapa)}</span>
+                            </span>
+                            <span className="text-right tabular-nums">
+                              <span className="block font-semibold">{reg.pontos_total}</span>
+                              <span className="block text-xs text-slate-500">
+                                grupo {reg.pontos_grupo} + mata-mata {reg.pontos_mata_mata}
                               </span>
-                              <span className="text-right tabular-nums">
-                                <span className="block font-semibold">{r.pontos_total}</span>
-                                <span className="block text-xs text-slate-500">
-                                  grupo {r.pontos_grupo} + mata-mata {r.pontos_mata_mata}
-                                </span>
-                              </span>
-                            </li>
-                          );
-                        })}
+                            </span>
+                          </li>
+                        ))}
                       </ul>
                     </Acordeao>
                   </div>
@@ -152,6 +147,16 @@ export default function RankPage() {
             </div>
           )}
         </div>
+      )}
+
+      {isAdmin && desempatando && temporada && (
+        <DesempateModal
+          empatados={r.empateCorte}
+          nome={nome}
+          descricao="Estes jogadores estão empatados em pontos na disputa das vagas da Finals. Ordene conforme a decisão da organização."
+          onSalvar={(ordemBloco) => salvarDesempateRank(temporada, r.desempate, ordemBloco)}
+          onFechar={() => setDesempatando(false)}
+        />
       )}
     </>
   );

@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDocs, limit, query, updateDoc, where, writeBatch } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDocs, limit, query, setDoc, updateDoc, where, writeBatch } from "firebase/firestore";
 import { montarChave, proximoJogo, type FaseMM } from "@/lib/engine/chave";
 import { chavePar, gerarConfrontos, planejarSubstituicao, type Par } from "@/lib/engine/confrontos";
 import type { LinhaImportada } from "@/lib/engine/importacao";
@@ -78,6 +78,12 @@ export async function finalizarEtapa(etapaId: string, registros: RegistroPontos[
   }
   batch.update(doc(db, "etapas", etapaId), { status: "finalizada" });
   await batch.commit();
+}
+
+/** P1: ordem manual de empatados em pontos no Rank da temporada. */
+export async function salvarDesempateRank(temporada: number, atual: string[], ordemBloco: string[]) {
+  const outros = atual.filter((id) => !ordemBloco.includes(id));
+  await setDoc(doc(db, "temporadas", String(temporada)), { desempate_rank: [...outros, ...ordemBloco] }, { merge: true });
 }
 
 export type ItemImportacao = LinhaImportada & { jogadorId: string | null };

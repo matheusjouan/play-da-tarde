@@ -40,6 +40,8 @@ export default function GruposPage() {
         <Carregando />
       ) : !etapa ? (
         <Vazio>Nenhuma etapa em andamento.</Vazio>
+      ) : etapa.tipo === "finals" ? (
+        <Vazio>A Finals não tem fase de grupos — veja a aba Chaves.</Vazio>
       ) : dados.grupos.length === 0 ? (
         <Vazio>Os grupos desta etapa ainda não foram montados.</Vazio>
       ) : (

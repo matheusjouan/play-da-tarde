@@ -128,6 +128,9 @@ ranking_por_etapa/{etapaId}_{jogadorId}
   posicao_grupo?, fase_mata_mata?, chave?
   pontos_grupo, pontos_mata_mata, pontos_total
 
+temporadas/{ano}
+  desempate_rank?: jogadorId[]          // ordem manual de empatados em pontos no Rank
+
 regulamentos/{regulamentoId}
   etapaId, titulo, link (Google Drive)
 ```
@@ -163,8 +166,8 @@ regulamentos/{regulamentoId}
 
 ## 8. PENDÊNCIAS EM ABERTO
 
-- **P1 — Desempate do Rank da temporada** (decide a vaga no Top 8 da Finals). Ex.: 2ª Etapa tem 7º/8º empatados em 520.
-- **P2 — Formato da Finals** (8 jogadores): mata-mata direto `1×8, 4×5, 3×6, 2×7`? Grupos? Mesmo formato de partida?
+- ~~P1~~ **Resolvida:** empate em pontos no Rank da temporada → o sistema avisa e o **admin define a ordem** (sorteio/decisão da organização). Guardado em `temporadas/{ano}.desempate_rank`.
+- ~~P2~~ **Resolvida:** Finals = **mata-mata direto** com o Top 8 do Rank da temporada, seeds pela posição no Rank: `1×8, 4×5, 3×6, 2×7` → Semi → Final. Mesmo formato de partida (3.3). Não gera pontos.
 
 ---
 
@@ -189,3 +192,5 @@ Ver `docs/PLANO.md`.
 | Substituição | Jogador que saiu não pontua (3.6) |
 | Temporada | Etapas têm ano; Rank e Finals por temporada; todas as etapas atuais = 2026 (3.8) |
 | Navegação | Grupos/Geral/Chaves por etapa com seletor mantido entre abas; Rank por temporada (3.8) |
+| Desempate do Rank (P1) | Admin define a ordem manualmente |
+| Formato da Finals (P2) | Mata-mata direto do Top 8: 1×8, 4×5, 3×6, 2×7 |

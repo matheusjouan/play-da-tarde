@@ -90,6 +90,12 @@ export type RankingPorEtapa = {
   pontos_total: number;
 };
 
+/** temporadas/{ano} */
+export type TemporadaDoc = {
+  id: string;
+  desempate_rank?: string[];
+};
+
 export type Regulamento = {
   id: string;
   etapaId: string;

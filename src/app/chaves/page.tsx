@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AlertTriangle, ListOrdered, RefreshCw, Wand2 } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { ChaveView } from "@/components/chaves/ChaveView";
+import { FinalsChave } from "@/components/chaves/FinalsChave";
 import { EtapaSelect, useEtapaSelecionada } from "@/components/EtapaSelect";
 import { DesempateModal } from "@/components/grupos/DesempateModal";
 import { PlacarModal } from "@/components/grupos/PlacarModal";
@@ -108,7 +109,10 @@ export default function ChavesPage() {
 
   return (
     <>
-      <PageHeader title="Chaves Ouro e Prata" subtitle={etapa?.nome ?? "Mata-mata da etapa"} />
+      <PageHeader
+        title={etapa?.tipo === "finals" ? "Finals" : "Chaves Ouro e Prata"}
+        subtitle={etapa?.nome ?? "Mata-mata da etapa"}
+      />
       <EtapaSelect lista={lista} etapa={etapa} onChange={setEtapaId} />
       {error && <Alerta>Erro ao carregar: {error}</Alerta>}
 
@@ -117,7 +121,7 @@ export default function ChavesPage() {
       ) : !etapa ? (
         <Vazio>Nenhuma etapa em andamento.</Vazio>
       ) : etapa.tipo === "finals" ? (
-        <Vazio>A chave da Finals será implementada na etapa E11.</Vazio>
+        <FinalsChave etapa={etapa} partidas={dados.partidas} chaves={chavesDocs.data} isAdmin={isAdmin} />
       ) : dados.grupos.length === 0 ? (
         <Vazio>Os grupos desta etapa ainda não foram montados.</Vazio>
       ) : (
