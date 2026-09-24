@@ -75,6 +75,21 @@ export type ChaveDoc = {
   ajusteManual?: boolean;
 };
 
+/** ranking_por_etapa/{etapaId}_{jogadorId} */
+export type RankingPorEtapa = {
+  id: string;
+  jogadorId: string;
+  etapaId: string;
+  origem: OrigemEtapa;
+  posicao_grupo?: number | null;
+  posicao_final?: number | null;
+  chave?: Chave | null;
+  fase_mata_mata?: FaseMataMata | null;
+  pontos_grupo: number;
+  pontos_mata_mata: number;
+  pontos_total: number;
+};
+
 export type Regulamento = {
   id: string;
   etapaId: string;

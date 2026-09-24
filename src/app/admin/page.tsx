@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { CalendarDays, ChevronRight, FileText, Users } from "lucide-react";
+import { CalendarDays, ChevronRight, FileText, FileUp, Users } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 const ITENS = [
   { href: "/admin/jogadores", label: "Jogadores", desc: "Cadastro de todos os jogadores", icon: Users },
   { href: "/admin/etapas", label: "Etapas", desc: "Criar etapas e tabelas de pontos", icon: CalendarDays },
   { href: "/admin/regulamentos", label: "Regulamentos", desc: "Links dos regulamentos por etapa", icon: FileText },
+  { href: "/admin/importar", label: "Importar etapa", desc: "Pontos de etapa passada (CSV)", icon: FileUp },
 ];
 
 export default function AdminPage() {

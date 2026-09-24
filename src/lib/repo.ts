@@ -1,9 +1,11 @@
 import { addDoc, collection, deleteDoc, doc, getDocs, limit, query, updateDoc, where, writeBatch } from "firebase/firestore";
 import { montarChave, proximoJogo, type FaseMM } from "@/lib/engine/chave";
 import { chavePar, gerarConfrontos, planejarSubstituicao, type Par } from "@/lib/engine/confrontos";
+import type { LinhaImportada } from "@/lib/engine/importacao";
+import type { RegistroPontos } from "@/lib/engine/pontos";
 import { db } from "@/lib/firebase";
 import { limparNome, normalizarNome } from "@/lib/nomes";
-import type { Chave, Etapa, Grupo, Jogador, Partida, Regulamento, SemId, SetPlacar } from "@/lib/types";
+import type { Chave, Etapa, Grupo, Jogador, Partida, RankingPorEtapa, Regulamento, SemId, SetPlacar } from "@/lib/types";
 
 // Escritas no Firestore. As regras (firestore.rules) rejeitam tudo que não vier do admin.
 
@@ -28,10 +30,12 @@ export async function renomearJogador(id: string, nome: string) {
   });
 }
 
-/** Retorna false (sem excluir) se o jogador estiver em algum grupo. */
+/** Retorna false (sem excluir) se o jogador estiver em algum grupo ou tiver pontuação registrada. */
 export async function excluirJogador(id: string): Promise<boolean> {
   const emGrupo = await getDocs(query(collection(db, "grupos"), where("jogadorIds", "array-contains", id), limit(1)));
   if (!emGrupo.empty) return false;
+  const pontuou = await getDocs(query(collection(db, "ranking_por_etapa"), where("jogadorId", "==", id), limit(1)));
+  if (!pontuou.empty) return false;
   await deleteDoc(doc(db, "jogadores", id));
   return true;
 }
@@ -47,12 +51,64 @@ export async function atualizarEtapa(id: string, dados: Partial<SemId<Etapa>>) {
   await updateDoc(doc(db, "etapas", id), dados);
 }
 
-/** Retorna false (sem excluir) se a etapa já tiver grupos. */
+/** Retorna false (sem excluir) se a etapa já tiver grupos. Apaga junto pontuação, chaves e jogos da etapa. */
 export async function excluirEtapa(id: string): Promise<boolean> {
   const grupos = await getDocs(query(collection(db, "grupos"), where("etapaId", "==", id), limit(1)));
   if (!grupos.empty) return false;
-  await deleteDoc(doc(db, "etapas", id));
+  const batch = writeBatch(db);
+  for (const col of ["ranking_por_etapa", "chaves", "partidas"]) {
+    const docs = await getDocs(query(collection(db, col), where("etapaId", "==", id)));
+    docs.forEach((d) => batch.delete(d.ref));
+  }
+  batch.delete(doc(db, "etapas", id));
+  await batch.commit();
   return true;
+}
+
+// ---------- Pontuação ----------
+
+/** Grava a pontuação da etapa (substitui a anterior, se houver) e marca a etapa como finalizada. */
+export async function finalizarEtapa(etapaId: string, registros: RegistroPontos[]) {
+  const antigos = await getDocs(query(collection(db, "ranking_por_etapa"), where("etapaId", "==", etapaId)));
+  const batch = writeBatch(db);
+  antigos.forEach((d) => batch.delete(d.ref));
+  for (const r of registros) {
+    const dado: SemId<RankingPorEtapa> = { ...r, etapaId, origem: "sistema" };
+    batch.set(doc(db, "ranking_por_etapa", `${etapaId}_${r.jogadorId}`), dado);
+  }
+  batch.update(doc(db, "etapas", etapaId), { status: "finalizada" });
+  await batch.commit();
+}
+
+export type ItemImportacao = LinhaImportada & { jogadorId: string | null };
+
+/**
+ * Importa uma etapa passada (origem "importado", já finalizada): cria a etapa, os jogadores novos
+ * (jogadorId null) e a pontuação de cada um.
+ */
+export async function importarEtapa(etapa: SemId<Etapa>, itens: ItemImportacao[]) {
+  const batch = writeBatch(db);
+  const etapaRef = doc(collection(db, "etapas"));
+  batch.set(etapaRef, etapa);
+  for (const item of itens) {
+    let jogadorId = item.jogadorId;
+    if (!jogadorId) {
+      const ref = doc(collection(db, "jogadores"));
+      batch.set(ref, { nome: limparNome(item.nome), nome_normalizado: normalizarNome(item.nome) });
+      jogadorId = ref.id;
+    }
+    const dado: SemId<RankingPorEtapa> = {
+      jogadorId,
+      etapaId: etapaRef.id,
+      origem: "importado",
+      posicao_final: item.posicao_final,
+      pontos_grupo: item.pontos_grupo,
+      pontos_mata_mata: item.pontos_mata_mata,
+      pontos_total: item.pontos_total,
+    };
+    batch.set(doc(db, "ranking_por_etapa", `${etapaRef.id}_${jogadorId}`), dado);
+  }
+  await batch.commit();
 }
 
 // ---------- Grupos e confrontos ----------

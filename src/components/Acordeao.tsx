@@ -6,16 +6,19 @@ import { ChevronDown } from "lucide-react";
 type Props = {
   titulo: ReactNode;
   subtitulo?: ReactNode;
+  /** Conteúdo à direita do título (ex.: total de pontos). */
+  direita?: ReactNode;
   aberto: boolean;
   onAlternar: () => void;
   children: ReactNode;
+  className?: string;
 };
 
 /**
  * Item de acordeão controlado pela página (só um aberto por vez, todos começam fechados).
  * Ao abrir, o item aberto acima fecha e a página "pula": rola este item até o topo.
  */
-export function Acordeao({ titulo, subtitulo, aberto, onAlternar, children }: Props) {
+export function Acordeao({ titulo, subtitulo, direita, aberto, onAlternar, children, className = "" }: Props) {
   const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -23,12 +26,13 @@ export function Acordeao({ titulo, subtitulo, aberto, onAlternar, children }: Pr
   }, [aberto]);
 
   return (
-    <section ref={ref} className="scroll-mt-16 rounded-xl border border-slate-200 bg-white">
+    <section ref={ref} className={`scroll-mt-16 rounded-xl border border-slate-200 bg-white ${className}`}>
       <button onClick={onAlternar} aria-expanded={aberto} className="flex min-h-16 w-full cursor-pointer items-center gap-3 px-4 text-left">
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2 text-lg font-semibold">{titulo}</span>
           {subtitulo && <span className="block truncate text-sm text-slate-500">{subtitulo}</span>}
         </span>
+        {direita}
         <ChevronDown size={20} className={`shrink-0 text-slate-400 transition-transform ${aberto ? "rotate-180" : ""}`} />
       </button>
       {aberto && <div className="space-y-4 px-4 pb-4">{children}</div>}

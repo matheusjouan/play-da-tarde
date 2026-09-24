@@ -63,7 +63,7 @@ export default function JogadoresPage() {
     if (!confirm(`Excluir "${j.nome}"?`)) return;
     executar(async () => {
       const ok = await excluirJogador(j.id);
-      setMsg(ok ? { tipo: "ok", texto: `"${j.nome}" excluído.` } : { tipo: "erro", texto: `"${j.nome}" está em um grupo e não pode ser excluído.` });
+      setMsg(ok ? { tipo: "ok", texto: `"${j.nome}" excluído.` } : { tipo: "erro", texto: `"${j.nome}" está em um grupo ou tem pontos no Rank e não pode ser excluído.` });
     });
   }
 
