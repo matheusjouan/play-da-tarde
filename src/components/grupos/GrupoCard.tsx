@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { AlertTriangle, ChevronDown } from "lucide-react";
 import { ListaJogos } from "@/components/grupos/ListaJogos";
 import { TabelaClassificacao } from "@/components/grupos/TabelaClassificacao";
@@ -13,12 +14,20 @@ type Props = {
   classificacao: Classificacao;
   nome: (id: string | null) => string;
   isAdmin: boolean;
-  abertoInicial: boolean;
+  aberto: boolean;
+  onAlternar: () => void;
   onEditarPlacar: (p: Partida) => void;
   onDesempatar: (empatados: string[]) => void;
 };
 
-export function GrupoCard({ grupo, jogos, classificacao, nome, isAdmin, abertoInicial, onEditarPlacar, onDesempatar }: Props) {
+export function GrupoCard({ grupo, jogos, classificacao, nome, isAdmin, aberto, onAlternar, onEditarPlacar, onDesempatar }: Props) {
+  const ref = useRef<HTMLElement>(null);
+
+  // Ao abrir, o grupo que estava aberto acima fecha e a página "pula": rola este grupo até o topo.
+  useEffect(() => {
+    if (aberto) ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [aberto]);
+
   const jogados = jogos.filter((p) => p.vencedorId).length;
   const completo = jogos.length > 0 && jogados === jogos.length;
   // Empate total só é sinalizado com o grupo completo (no meio do grupo é normal haver empates).
@@ -26,8 +35,8 @@ export function GrupoCard({ grupo, jogos, classificacao, nome, isAdmin, abertoIn
   const lider = jogados > 0 ? nome(classificacao.linhas[0]?.jogadorId ?? null) : null;
 
   return (
-    <details open={abertoInicial} className="group rounded-xl border border-slate-200 bg-white">
-      <summary className="flex min-h-16 cursor-pointer list-none items-center gap-3 px-4 [&::-webkit-details-marker]:hidden">
+    <section ref={ref} className="scroll-mt-16 rounded-xl border border-slate-200 bg-white">
+      <button onClick={onAlternar} aria-expanded={aberto} className="flex min-h-16 w-full cursor-pointer items-center gap-3 px-4 text-left">
         <span className="flex-1">
           <span className="flex items-center gap-2 text-lg font-semibold">
             {grupo.nome}
@@ -38,33 +47,31 @@ export function GrupoCard({ grupo, jogos, classificacao, nome, isAdmin, abertoIn
             {lider && ` · 1º ${lider}`}
           </span>
         </span>
-        <ChevronDown size={20} className="text-slate-400 transition-transform group-open:rotate-180" />
-      </summary>
+        <ChevronDown size={20} className={`text-slate-400 transition-transform ${aberto ? "rotate-180" : ""}`} />
+      </button>
 
-      <div className="space-y-4 px-4 pb-4">
-        {empates.map((bloco) => (
-          <div key={bloco.join()} className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-            <p className="font-medium">Empate total: {bloco.map((id) => nome(id)).join(", ")}</p>
-            <p className="text-amber-800">A ordem deve ser definida por sorteio.</p>
-            {isAdmin && (
-              <button className={`${btnSecondary} mt-2 w-full`} onClick={() => onDesempatar(bloco)}>
-                Definir ordem
-              </button>
-            )}
+      {aberto && (
+        <div className="space-y-4 px-4 pb-4">
+          {empates.map((bloco) => (
+            <div key={bloco.join()} className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+              <p className="font-medium">Empate total: {bloco.map((id) => nome(id)).join(", ")}</p>
+              <p className="text-amber-800">A ordem deve ser definida por sorteio.</p>
+              {isAdmin && (
+                <button className={`${btnSecondary} mt-2 w-full`} onClick={() => onDesempatar(bloco)}>
+                  Definir ordem
+                </button>
+              )}
+            </div>
+          ))}
+
+          <TabelaClassificacao linhas={classificacao.linhas} nome={(id) => nome(id)} empatados={new Set(empates.flat())} />
+
+          <div>
+            <h3 className="mb-1 text-sm font-semibold text-slate-600">Jogos</h3>
+            <ListaJogos jogos={jogos} nome={nome} isAdmin={isAdmin} onEditar={onEditarPlacar} />
           </div>
-        ))}
-
-        <TabelaClassificacao
-          linhas={classificacao.linhas}
-          nome={(id) => nome(id)}
-          empatados={new Set(empates.flat())}
-        />
-
-        <div>
-          <h3 className="mb-1 text-sm font-semibold text-slate-600">Jogos</h3>
-          <ListaJogos jogos={jogos} nome={nome} isAdmin={isAdmin} onEditar={onEditarPlacar} />
         </div>
-      </div>
-    </details>
+      )}
+    </section>
   );
 }

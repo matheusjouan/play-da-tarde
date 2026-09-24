@@ -22,6 +22,8 @@ export default function GruposPage() {
   const grupos = useCollection<Grupo>("grupos", { onde: { campo: "etapaId", igual: etapa?.id } });
   const partidas = useCollection<Partida>("partidas", { onde: { campo: "etapaId", igual: etapa?.id } });
   const [editando, setEditando] = useState<string | null>(null);
+  // Só um grupo aberto por vez; todos começam fechados.
+  const [aberto, setAberto] = useState<string | null>(null);
   const [desempate, setDesempate] = useState<{ grupo: Grupo; empatados: string[] } | null>(null);
 
   const nome = (id: string | null) => jogadores.data.find((j) => j.id === id)?.nome ?? "—";
@@ -55,7 +57,7 @@ export default function GruposPage() {
         <Vazio>Os grupos desta etapa ainda não foram montados.</Vazio>
       ) : (
         <div className="space-y-3">
-          {listaGrupos.map((g, i) => {
+          {listaGrupos.map((g) => {
             const jogos = jogosOrdenados(g);
             return (
               <GrupoCard
@@ -65,7 +67,8 @@ export default function GruposPage() {
                 classificacao={classificarGrupo(g.jogadorIds, jogos, g.desempate_manual)}
                 nome={nome}
                 isAdmin={isAdmin}
-                abertoInicial={i === 0}
+                aberto={aberto === g.id}
+                onAlternar={() => setAberto(aberto === g.id ? null : g.id)}
                 onEditarPlacar={(p) => setEditando(p.id)}
                 onDesempatar={(empatados) => setDesempate({ grupo: g, empatados })}
               />
