@@ -64,6 +64,17 @@ export type Partida = {
   vencedorId: string | null;
 };
 
+/** chaves/{etapaId}_{ouro|prata}. "Travada" é derivado: algum jogo do mata-mata com placar. */
+export type ChaveDoc = {
+  id: string;
+  etapaId: string;
+  chave: Chave;
+  /** seeds[0] = #1 */
+  seeds: string[];
+  /** Admin reordenou os seeds manualmente (não avisar que difere do cálculo automático). */
+  ajusteManual?: boolean;
+};
+
 export type Regulamento = {
   id: string;
   etapaId: string;

@@ -7,7 +7,15 @@ import { validarPlacar } from "@/lib/engine/placar";
 import { limparPlacar, salvarPlacar } from "@/lib/repo";
 import type { Partida, SetPlacar } from "@/lib/types";
 
-type Props = { partida: Partida; nome1: string; nome2: string; onFechar: () => void };
+type Props = {
+  partida: Partida;
+  nome1: string;
+  nome2: string;
+  onFechar: () => void;
+  /** Padrão: gravação simples (fase de grupos). O mata-mata passa a própria (avança o vencedor). */
+  onSalvar?: (sets: SetPlacar[], vencedorId: string) => Promise<void>;
+  onLimpar?: () => Promise<void>;
+};
 
 // Campos: [set1 j1, set1 j2, set2 j1, set2 j2, stb j1, stb j2]
 type Campos = [string, string, string, string, string, string];
@@ -20,7 +28,14 @@ function camposIniciais(sets: SetPlacar[]): Campos {
 
 const numero = (s: string) => (s.trim() === "" ? null : Number(s));
 
-export function PlacarModal({ partida, nome1, nome2, onFechar }: Props) {
+export function PlacarModal({
+  partida,
+  nome1,
+  nome2,
+  onFechar,
+  onSalvar = (sets, vencedorId) => salvarPlacar(partida.id, sets, vencedorId),
+  onLimpar = () => limparPlacar(partida.id),
+}: Props) {
   const [c, setC] = useState<Campos>(camposIniciais(partida.sets));
   const [salvando, setSalvando] = useState(false);
   const [erroSalvar, setErroSalvar] = useState<string | null>(null);
@@ -57,7 +72,7 @@ export function PlacarModal({ partida, nome1, nome2, onFechar }: Props) {
   function salvar() {
     if (!resultado?.ok) return;
     const vencedorId = resultado.vencedor === 1 ? partida.jogador1Id : partida.jogador2Id;
-    if (vencedorId) executar(() => salvarPlacar(partida.id, sets, vencedorId));
+    if (vencedorId) executar(() => onSalvar(sets, vencedorId));
   }
 
   function wo(vencedor: 1 | 2) {
@@ -120,7 +135,7 @@ export function PlacarModal({ partida, nome1, nome2, onFechar }: Props) {
         <button
           className="mt-2 min-h-11 w-full text-sm text-red-600"
           disabled={salvando}
-          onClick={() => confirm("Apagar o placar deste jogo?") && executar(() => limparPlacar(partida.id))}
+          onClick={() => confirm("Apagar o placar deste jogo?") && executar(onLimpar)}
         >
           Apagar placar
         </button>

@@ -10,10 +10,21 @@ type Props = {
   nome: (id: string) => string;
   onSalvar: (ordem: string[]) => Promise<void>;
   onFechar: () => void;
+  titulo?: string;
+  descricao?: string;
+  prefixo?: (i: number) => string;
 };
 
-/** Admin define a ordem de jogadores em empate total (sorteio feito fora do sistema). */
-export function DesempateModal({ empatados, nome, onSalvar, onFechar }: Props) {
+/** Admin define a ordem de jogadores (empate total resolvido por sorteio fora do sistema, ou ajuste de seeds). */
+export function DesempateModal({
+  empatados,
+  nome,
+  onSalvar,
+  onFechar,
+  titulo = "Definir desempate",
+  descricao = "Estes jogadores estão empatados em vitórias, saldo de sets e saldo de games. Ordene conforme o sorteio.",
+  prefixo = (i) => `${i + 1}º`,
+}: Props) {
   const [ordem, setOrdem] = useState(empatados);
   const [erro, setErro] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
@@ -36,14 +47,12 @@ export function DesempateModal({ empatados, nome, onSalvar, onFechar }: Props) {
   }
 
   return (
-    <Modal titulo="Definir desempate" onFechar={onFechar}>
-      <p className="mb-3 text-sm text-slate-600">
-        Estes jogadores estão empatados em vitórias, saldo de sets e saldo de games. Ordene conforme o sorteio.
-      </p>
+    <Modal titulo={titulo} onFechar={onFechar}>
+      <p className="mb-3 text-sm text-slate-600">{descricao}</p>
       <ol className="mb-3 divide-y divide-slate-100 rounded-lg border border-slate-200">
         {ordem.map((id, i) => (
           <li key={id} className="flex items-center gap-2 pl-3">
-            <span className="w-6 text-slate-400">{i + 1}º</span>
+            <span className="w-8 text-slate-400">{prefixo(i)}</span>
             <span className="flex-1 font-medium">{nome(id)}</span>
             <button className={btnIcon} disabled={i === 0} onClick={() => mover(i, -1)} aria-label={`Subir ${nome(id)}`}>
               <ArrowUp size={18} />

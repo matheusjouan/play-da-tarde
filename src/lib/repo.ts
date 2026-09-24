@@ -1,8 +1,9 @@
 import { addDoc, collection, deleteDoc, doc, getDocs, limit, query, updateDoc, where, writeBatch } from "firebase/firestore";
+import { montarChave, proximoJogo, type FaseMM } from "@/lib/engine/chave";
 import { chavePar, gerarConfrontos, planejarSubstituicao, type Par } from "@/lib/engine/confrontos";
 import { db } from "@/lib/firebase";
 import { limparNome, normalizarNome } from "@/lib/nomes";
-import type { Etapa, Grupo, Jogador, Partida, Regulamento, SemId, SetPlacar } from "@/lib/types";
+import type { Chave, Etapa, Grupo, Jogador, Partida, Regulamento, SemId, SetPlacar } from "@/lib/types";
 
 // Escritas no Firestore. As regras (firestore.rules) rejeitam tudo que não vier do admin.
 
@@ -147,6 +148,68 @@ export async function salvarDesempateGrupo(grupo: Grupo, ordemBloco: string[]) {
 export async function salvarDesempateGeral(etapa: Etapa, ordemBloco: string[]) {
   const outros = (etapa.desempate_geral ?? []).filter((id) => !ordemBloco.includes(id));
   await updateDoc(doc(db, "etapas", etapa.id), { desempate_geral: [...outros, ...ordemBloco] });
+}
+
+// ---------- Mata-mata ----------
+
+function partidaChaveRef(etapaId: string, chave: Chave, fase: FaseMM, slot: number) {
+  return doc(db, "partidas", `${etapaId}__${chave}__${fase}__${slot}`);
+}
+
+/**
+ * Gera (ou regenera) uma chave: apaga os jogos antigos dessa chave, grava os seeds e cria todos os jogos
+ * (byes já resolvidos). Coloca a etapa em "mata_mata".
+ */
+export async function gerarChave(etapaId: string, chave: Chave, seeds: string[], jogosExistentes: Partida[], ajusteManual = false) {
+  const batch = writeBatch(db);
+  for (const p of jogosExistentes) batch.delete(doc(db, "partidas", p.id));
+  batch.set(doc(db, "chaves", `${etapaId}_${chave}`), { etapaId, chave, seeds, ajusteManual });
+  for (const j of montarChave(seeds)) {
+    const partida: SemId<Partida> = {
+      etapaId,
+      fase: j.fase,
+      chave,
+      slot: j.slot,
+      jogador1Id: j.jogador1Id,
+      jogador2Id: j.jogador2Id,
+      sets: [],
+      vencedorId: j.vencedorId,
+    };
+    batch.set(partidaChaveRef(etapaId, chave, j.fase, j.slot), partida);
+  }
+  batch.update(doc(db, "etapas", etapaId), { status: "mata_mata" });
+  await batch.commit();
+}
+
+function jogoSeguinte(partida: Partida, fases: FaseMM[], jogosDaChave: Partida[]) {
+  const prox = proximoJogo(fases, partida.fase as FaseMM, partida.slot ?? 0);
+  if (!prox) return null;
+  const alvo = jogosDaChave.find((p) => p.fase === prox.fase && p.slot === prox.slot);
+  return alvo ? { alvo, campo: prox.lado === 1 ? ("jogador1Id" as const) : ("jogador2Id" as const) } : null;
+}
+
+/** Salva o placar e coloca o vencedor no jogo seguinte. Bloqueia se o jogo seguinte já tiver placar e o vencedor mudar. */
+export async function salvarPlacarMataMata(partida: Partida, fases: FaseMM[], jogosDaChave: Partida[], sets: SetPlacar[], vencedorId: string) {
+  const seguinte = jogoSeguinte(partida, fases, jogosDaChave);
+  if (seguinte && seguinte.alvo.sets.length > 0 && seguinte.alvo[seguinte.campo] !== vencedorId) {
+    throw new Error("O jogo da fase seguinte já tem placar. Apague aquele placar antes de mudar o vencedor deste jogo.");
+  }
+  const batch = writeBatch(db);
+  batch.update(doc(db, "partidas", partida.id), { sets, vencedorId });
+  if (seguinte) batch.update(doc(db, "partidas", seguinte.alvo.id), { [seguinte.campo]: vencedorId });
+  await batch.commit();
+}
+
+/** Apaga o placar e tira o vencedor do jogo seguinte (se aquele jogo ainda não foi disputado). */
+export async function limparPlacarMataMata(partida: Partida, fases: FaseMM[], jogosDaChave: Partida[]) {
+  const seguinte = jogoSeguinte(partida, fases, jogosDaChave);
+  if (seguinte && seguinte.alvo.sets.length > 0) {
+    throw new Error("O jogo da fase seguinte já tem placar. Apague aquele placar primeiro.");
+  }
+  const batch = writeBatch(db);
+  batch.update(doc(db, "partidas", partida.id), { sets: [], vencedorId: null });
+  if (seguinte) batch.update(doc(db, "partidas", seguinte.alvo.id), { [seguinte.campo]: null });
+  await batch.commit();
 }
 
 // ---------- Regulamentos ----------
