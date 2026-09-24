@@ -44,7 +44,7 @@ export function JogadorPicker({ titulo, disponiveis, onConfirmar, onFechar, unic
   }
 
   return (
-    <div className="fixed inset-0 z-30 flex flex-col bg-white">
+    <div className="fixed inset-0 z-40 flex flex-col bg-white">
       <header className="flex items-center gap-2 border-b border-slate-200 px-2">
         <button className={btnIcon} onClick={onFechar} aria-label="Fechar">
           <X size={22} />

@@ -28,7 +28,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="pt-BR" className={`${geistSans.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <AuthProvider>
-          <header className="sticky top-0 z-10 bg-emerald-700 text-white">
+          {/* Camadas: tabela (coluna fixa) z-[1] < header/nav z-30 < seletor z-40 < modal z-50 */}
+          <header className="sticky top-0 z-30 bg-emerald-700 text-white">
             <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
               <Trophy size={22} />
               <span className="flex-1 text-lg font-semibold">Play da Tarde</span>

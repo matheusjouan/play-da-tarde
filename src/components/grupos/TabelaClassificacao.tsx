@@ -21,7 +21,7 @@ export function TabelaClassificacao<T extends LinhaClassificacao>({ linhas, nome
       <table className="w-full min-w-[18rem] table-fixed border-separate border-spacing-0 text-sm">
         <thead className="text-xs text-slate-500">
           <tr>
-            <th className={`${th} sticky left-0 z-10 bg-white text-left`}>Jogador</th>
+            <th className={`${th} sticky left-0 z-[1] bg-white text-left`}>Jogador</th>
             <th className={`${th} w-7`} title="Vitórias">
               V
             </th>
@@ -43,7 +43,7 @@ export function TabelaClassificacao<T extends LinhaClassificacao>({ linhas, nome
         <tbody>
           {linhas.map((l) => (
             <tr key={l.jogadorId}>
-              <td className="sticky left-0 z-10 border-t border-slate-100 bg-white py-2 pr-2">
+              <td className="sticky left-0 z-[1] border-t border-slate-100 bg-white py-2 pr-2">
                 <span className="flex items-center gap-2">
                   <span className="w-6 shrink-0 text-right text-slate-400 tabular-nums">{l.posicao}º</span>
                   <span className="min-w-0">

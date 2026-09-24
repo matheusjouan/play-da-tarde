@@ -17,7 +17,7 @@ export function Modal({ titulo, onFechar, children }: { titulo: string; onFechar
   }, [onFechar]);
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/40 sm:items-center" onClick={onFechar}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center" onClick={onFechar}>
       <div
         role="dialog"
         aria-modal="true"
