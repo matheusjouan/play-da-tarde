@@ -2,7 +2,7 @@ import { addDoc, collection, deleteDoc, doc, getDocs, limit, query, updateDoc, w
 import { chavePar, gerarConfrontos, type Par } from "@/lib/engine/confrontos";
 import { db } from "@/lib/firebase";
 import { limparNome, normalizarNome } from "@/lib/nomes";
-import type { Etapa, Grupo, Jogador, Partida, Regulamento, SemId } from "@/lib/types";
+import type { Etapa, Grupo, Jogador, Partida, Regulamento, SemId, SetPlacar } from "@/lib/types";
 
 // Escritas no Firestore. As regras (firestore.rules) rejeitam tudo que não vier do admin.
 
@@ -109,6 +109,22 @@ export async function excluirGrupo(grupo: Grupo) {
   for (const [a, b] of gerarConfrontos(grupo.jogadorIds)) batch.delete(partidaGrupoRef(grupo.id, a, b));
   batch.delete(doc(db, "grupos", grupo.id));
   await batch.commit();
+}
+
+// ---------- Placar e desempate ----------
+
+export async function salvarPlacar(partidaId: string, sets: SetPlacar[], vencedorId: string) {
+  await updateDoc(doc(db, "partidas", partidaId), { sets, vencedorId });
+}
+
+export async function limparPlacar(partidaId: string) {
+  await updateDoc(doc(db, "partidas", partidaId), { sets: [], vencedorId: null });
+}
+
+/** Grava a ordem manual de um bloco de jogadores empatados, preservando a de outros blocos. */
+export async function salvarDesempateGrupo(grupo: Grupo, ordemBloco: string[]) {
+  const outros = (grupo.desempate_manual ?? []).filter((id) => !ordemBloco.includes(id));
+  await updateDoc(doc(db, "grupos", grupo.id), { desempate_manual: [...outros, ...ordemBloco] });
 }
 
 // ---------- Regulamentos ----------

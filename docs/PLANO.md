@@ -41,7 +41,7 @@ Seguir `docs/SETUP.md`.
 ## [X] E4 — Montagem de grupos + confrontos automáticos
 **Teste:** grupo de 5 → **10** partidas; grupo de 6 → **15**. Mesmo jogador não entra em dois grupos da mesma etapa.
 
-## [ ] E4.1 — Temporada + etapa selecionada entre abas
+## [X] E4.1 — Temporada + etapa selecionada entre abas
 - Campo **Temporada** (ano) na etapa: preenchido com o ano atual ao criar, editável. Etapas sem o campo são tratadas como 2026.
 - A etapa escolhida no seletor (Grupos/Geral/Chaves) é mantida ao trocar de aba.
 - Base para a E10/E11: Rank e Top 8 da Finals filtram por temporada.
@@ -51,7 +51,7 @@ Seguir `docs/SETUP.md`.
 2. Criar etapa nova → Temporada já vem com o ano atual.
 3. Com 2 etapas, escolher a mais antiga em Grupos, trocar para Geral e voltar → a escolha continua.
 
-## [ ] E5 — Motor de cálculo (lógica pura + testes)
+## [X] E5 — Motor de cálculo (lógica pura + testes)
 - `src/lib/engine/`: validação de placar, estatísticas, ordenação com desempate e detecção de empate total.
 - Testes Vitest: exemplo do STB (Matheus +3 / Thiago −1), W.O., empates em cadeia, grupo de 6, e o **caso real do Grupo H** (`docs/dados/teste-grupo-h.md`, jogos parciais).
 
