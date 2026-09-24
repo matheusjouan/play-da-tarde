@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { alternar } from "@/components/Acordeao";
 import { useAuth } from "@/components/AuthProvider";
 import { EtapaSelect, useEtapaSelecionada } from "@/components/EtapaSelect";
 import { DesempateModal } from "@/components/grupos/DesempateModal";
@@ -52,7 +53,7 @@ export default function GruposPage() {
               nome={nome}
               isAdmin={isAdmin}
               aberto={aberto === g.id}
-              onAlternar={() => setAberto(aberto === g.id ? null : g.id)}
+              onAlternar={() => setAberto(alternar(aberto, g.id))}
               onEditarPlacar={(p) => setEditando(p.id)}
               onDesempatar={(empatados) => setDesempate({ grupo: g, empatados })}
             />

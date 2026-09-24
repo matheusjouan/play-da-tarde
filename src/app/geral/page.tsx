@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { AlertTriangle } from "lucide-react";
+import { Acordeao, alternar } from "@/components/Acordeao";
 import { useAuth } from "@/components/AuthProvider";
 import { EtapaSelect, useEtapaSelecionada } from "@/components/EtapaSelect";
 import { DesempateModal } from "@/components/grupos/DesempateModal";
 import { TabelaClassificacao } from "@/components/grupos/TabelaClassificacao";
 import { PageHeader } from "@/components/PageHeader";
-import { Alerta, btnSecondary, Card, Carregando, Vazio } from "@/components/ui";
+import { Alerta, btnSecondary, Carregando, Vazio } from "@/components/ui";
 import { classificarGeral, type Destino, type LinhaGeral } from "@/lib/engine/geral";
 import { salvarDesempateGeral } from "@/lib/repo";
 import { useEtapaDados } from "@/lib/useEtapaDados";
@@ -23,6 +25,8 @@ export default function GeralPage() {
   const { etapa, lista, setEtapaId } = etapas;
   const dados = useEtapaDados(etapa?.id);
   const [desempate, setDesempate] = useState<string[] | null>(null);
+  // Só uma chave aberta por vez; todas começam fechadas.
+  const [aberto, setAberto] = useState<string | null>(null);
 
   const geral = etapa
     ? classificarGeral(
@@ -77,25 +81,36 @@ export default function GeralPage() {
             </div>
           ))}
 
-          {SECOES.map(({ destino, titulo, cor }) => {
-            const linhas = geral.linhas.filter((l) => l.destino === destino);
-            if (linhas.length === 0) return null;
-            return (
-              <Card key={destino}>
-                <h2 className="mb-2 flex items-center gap-2 font-semibold">
-                  <span className={`size-3 rounded-full ${cor}`} />
-                  {titulo}
-                  <span className="text-sm font-normal text-slate-500">({linhas.length})</span>
-                </h2>
-                <TabelaClassificacao<LinhaGeral>
-                  linhas={linhas}
-                  nome={dados.nome}
-                  empatados={new Set(empates.flat())}
-                  origem={(l) => `Grupo ${letra(l.grupoId)} · ${l.posicaoGrupo}º`}
-                />
-              </Card>
-            );
-          })}
+          <div className="space-y-3">
+            {SECOES.map(({ destino, titulo, cor }) => {
+              const linhas = geral.linhas.filter((l) => l.destino === destino);
+              if (linhas.length === 0) return null;
+              const temEmpate = linhas.some((l) => empates.flat().includes(l.jogadorId));
+              return (
+                <Acordeao
+                  key={destino}
+                  aberto={aberto === destino}
+                  onAlternar={() => setAberto(alternar(aberto, destino))}
+                  titulo={
+                    <>
+                      <span className={`size-3 shrink-0 rounded-full ${cor}`} />
+                      {titulo}
+                      <span className="text-sm font-normal text-slate-500">({linhas.length})</span>
+                      {temEmpate && <AlertTriangle size={16} className="text-amber-600" aria-label="Empate a definir" />}
+                    </>
+                  }
+                  subtitulo={`${linhas[0].posicao}º ao ${linhas[linhas.length - 1].posicao}º · 1º ${dados.nome(linhas[0].jogadorId)}`}
+                >
+                  <TabelaClassificacao<LinhaGeral>
+                    linhas={linhas}
+                    nome={dados.nome}
+                    empatados={new Set(empates.flat())}
+                    origem={(l) => `Grupo ${letra(l.grupoId)} · ${l.posicaoGrupo}º`}
+                  />
+                </Acordeao>
+              );
+            })}
+          </div>
         </div>
       )}
 
