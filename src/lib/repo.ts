@@ -127,6 +127,12 @@ export async function salvarDesempateGrupo(grupo: Grupo, ordemBloco: string[]) {
   await updateDoc(doc(db, "grupos", grupo.id), { desempate_manual: [...outros, ...ordemBloco] });
 }
 
+/** Ordem manual de empatados na classificação geral (decide vaga Ouro/Prata). */
+export async function salvarDesempateGeral(etapa: Etapa, ordemBloco: string[]) {
+  const outros = (etapa.desempate_geral ?? []).filter((id) => !ordemBloco.includes(id));
+  await updateDoc(doc(db, "etapas", etapa.id), { desempate_geral: [...outros, ...ordemBloco] });
+}
+
 // ---------- Regulamentos ----------
 
 export async function criarRegulamento(dados: SemId<Regulamento>) {
