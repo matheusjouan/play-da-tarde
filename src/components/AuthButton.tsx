@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { LogIn, LogOut, ShieldAlert, ShieldCheck } from "lucide-react";
 import { FirebaseError } from "firebase/app";
 import { useAuth } from "@/components/AuthProvider";
@@ -39,9 +40,15 @@ export function AuthButton() {
   return (
     <div className="flex items-center gap-1">
       {isAdmin ? (
-        <span className="flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-emerald-800">
-          <ShieldCheck size={14} /> Admin
-        </span>
+        <Link
+          href="/admin"
+          className="flex min-h-11 items-center"
+          aria-label="Abrir administração"
+        >
+          <span className="flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-emerald-800">
+            <ShieldCheck size={14} /> Admin
+          </span>
+        </Link>
       ) : (
         <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-900">
           <ShieldAlert size={14} /> Sem permissão

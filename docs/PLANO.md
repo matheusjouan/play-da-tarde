@@ -19,7 +19,7 @@ Seguir `docs/SETUP.md`.
 
 **Teste:** abrir a URL da Vercel **no celular**; navegar pelas 5 abas; botões fáceis de tocar.
 
-## [ ] E2 — Firebase + login Google + Security Rules
+## [X] E2 — Firebase + login Google + Security Rules
 - `src/lib/firebase.ts`, botão "Entrar como admin", hook `useIsAdmin`, arquivo `firestore.rules`.
 - Você: colar/publicar as regras no Console; adicionar o domínio da Vercel em Authentication → Settings → Authorized domains.
 
