@@ -1,5 +1,5 @@
 # ESPECIFICAÇÃO — Sistema de Gestão de Torneio de Tênis "Play da Tarde"
-**Versão:** 1.2 — 24/09/2026 (v1.0 original + decisões validadas durante a implementação)
+**Versão:** 1.3 — 25/09/2026 (v1.0 original + decisões validadas durante a implementação; 1.3: aba Recentes)
 **Abordagem:** Specification-Driven Development (SDD), por etapas incrementais
 
 > Este documento descreve **o que o sistema faz** (regras). O **porquê** de cada regra está em [`DECISOES.md`](DECISOES.md);
@@ -19,7 +19,7 @@
 ## 2. DIRETRIZ DE DESIGN (MOBILE-FIRST)
 
 - Alvos de toque ≥ 44px; nenhuma página com rolagem lateral em 375px.
-- Navegação por bottom bar: **Grupos · Geral · Chaves · Rank · Regras**.
+- Navegação por bottom bar: **Recentes · Grupos · Geral · Chaves · Rank · Regras** (o site abre em Recentes).
 - Listas longas em **acordeão**: todos começam fechados, **um aberto por vez**, o aberto rola até o topo.
 - Tabelas com a coluna do nome fixa; nomes longos cortados com "…".
 - Mata-mata no celular: abas **Oitavas / Quartas / Semi / Final**.
@@ -97,6 +97,12 @@ Cada etapa configura `vagas_ouro` e `vagas_prata` (padrão 16/16, máx. 16 por c
 - Grupos, Geral e Chaves são **por etapa**, com seletor (padrão = mais recente; escolha mantida entre abas; agrupado por temporada).
 - **Grupos e Geral ignoram a Finals.** Rank é **por temporada**.
 
+### 3.11 Recentes
+- Cards dos **5 últimos placares lançados ou alterados**, de todas as etapas (grupos e mata-mata, inclusive Finals), do mais recente para o mais antigo.
+- Card: título em negrito (`GRUPO H`, `OURO · QUARTAS`, `FINALS · SEMI`) + nome da etapa; os dois jogadores com o placar por set; **vencedor em verde**; `Data: dd/mm/aaaa` do último lançamento/alteração; selo W.O.
+- Alterar um placar leva o jogo de volta ao topo; **limpar o placar tira o jogo da lista**.
+- Placares lançados antes da v1.1 (sem `atualizado_em`) não aparecem.
+
 ---
 
 ## 4. SCHEMA FIRESTORE
@@ -123,6 +129,7 @@ partidas/{etapaId}__{chave}__{fase}__{slot}         ← mata-mata
   chave?: "ouro"|"prata", slot?: number
   jogador1Id, jogador2Id (null = bye / a definir)
   sets: [{ games1, games2, superTieBreak? }], vencedorId
+  atualizado_em?: Timestamp do servidor (placar salvo; removido ao limpar) — aba Recentes
 
 chaves/{etapaId}_{ouro|prata}                        ← Finals usa "ouro"
   etapaId, chave, seeds: jogadorId[] (#1 primeiro), ajusteManual?
@@ -146,6 +153,7 @@ regulamentos/{auto}
 
 | Aba / tela | Conteúdo |
 |---|---|
+| **Recentes** | Cards dos 5 últimos placares lançados/alterados (3.11) |
 | **Grupos** | Acordeão por grupo: classificação, jogos, placar (admin), desempate manual |
 | **Geral** | Blocos Ouro / Prata / Eliminados com grupo de origem; parcial ou final |
 | **Chaves** | Ouro/Prata ou Finals: abas por fase, seeds, byes, campeão; ferramentas do admin |

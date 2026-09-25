@@ -1,5 +1,7 @@
 // Tipos espelhando o schema do Firestore (docs/SPEC.md, seção 4).
 
+import type { Timestamp } from "firebase/firestore";
+
 export type TipoEtapa = "regular" | "finals";
 export type OrigemEtapa = "sistema" | "importado";
 export type StatusEtapa = "grupos" | "mata_mata" | "finalizada";
@@ -62,6 +64,8 @@ export type Partida = {
   jogador2Id: string | null;
   sets: SetPlacar[];
   vencedorId: string | null;
+  /** Quando o placar foi lançado/alterado pela última vez (aba Recentes). Ausente = sem placar ou lançado antes da v1.1. */
+  atualizado_em?: Timestamp | null;
 };
 
 /** chaves/{etapaId}_{ouro|prata}. "Travada" é derivado: algum jogo do mata-mata com placar. */

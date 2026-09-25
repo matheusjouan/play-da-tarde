@@ -1,4 +1,18 @@
-import { addDoc, collection, deleteDoc, doc, getDocs, limit, query, setDoc, updateDoc, where, writeBatch } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  deleteField,
+  doc,
+  getDocs,
+  limit,
+  query,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+  where,
+  writeBatch,
+} from "firebase/firestore";
 import { montarChave, proximoJogo, type FaseMM } from "@/lib/engine/chave";
 import { chavePar, gerarConfrontos, planejarSubstituicao, type Par } from "@/lib/engine/confrontos";
 import type { LinhaImportada } from "@/lib/engine/importacao";
@@ -192,12 +206,14 @@ export async function excluirGrupo(grupo: Grupo) {
 
 // ---------- Placar e desempate ----------
 
+// `atualizado_em` alimenta a aba Recentes: gravado ao salvar, removido ao limpar (o jogo sai da lista).
+
 export async function salvarPlacar(partidaId: string, sets: SetPlacar[], vencedorId: string) {
-  await updateDoc(doc(db, "partidas", partidaId), { sets, vencedorId });
+  await updateDoc(doc(db, "partidas", partidaId), { sets, vencedorId, atualizado_em: serverTimestamp() });
 }
 
 export async function limparPlacar(partidaId: string) {
-  await updateDoc(doc(db, "partidas", partidaId), { sets: [], vencedorId: null });
+  await updateDoc(doc(db, "partidas", partidaId), { sets: [], vencedorId: null, atualizado_em: deleteField() });
 }
 
 /** Grava a ordem manual de um bloco de jogadores empatados, preservando a de outros blocos. */
@@ -257,7 +273,7 @@ export async function salvarPlacarMataMata(partida: Partida, fases: FaseMM[], jo
     throw new Error("O jogo da fase seguinte já tem placar. Apague aquele placar antes de mudar o vencedor deste jogo.");
   }
   const batch = writeBatch(db);
-  batch.update(doc(db, "partidas", partida.id), { sets, vencedorId });
+  batch.update(doc(db, "partidas", partida.id), { sets, vencedorId, atualizado_em: serverTimestamp() });
   if (seguinte) batch.update(doc(db, "partidas", seguinte.alvo.id), { [seguinte.campo]: vencedorId });
   await batch.commit();
 }
@@ -269,7 +285,7 @@ export async function limparPlacarMataMata(partida: Partida, fases: FaseMM[], jo
     throw new Error("O jogo da fase seguinte já tem placar. Apague aquele placar primeiro.");
   }
   const batch = writeBatch(db);
-  batch.update(doc(db, "partidas", partida.id), { sets: [], vencedorId: null });
+  batch.update(doc(db, "partidas", partida.id), { sets: [], vencedorId: null, atualizado_em: deleteField() });
   if (seguinte) batch.update(doc(db, "partidas", seguinte.alvo.id), { [seguinte.campo]: null });
   await batch.commit();
 }

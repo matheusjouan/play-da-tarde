@@ -28,7 +28,8 @@ Hospedagem: Vercel (deploy a cada push na main)
 ### `src/app/` — páginas (rotas)
 | Rota | Arquivo | Conteúdo |
 |---|---|---|
-| `/` | `page.tsx` | Redireciona para `/grupos` |
+| `/` | `page.tsx` | Redireciona para `/recentes` |
+| `/recentes` | `recentes/page.tsx` | 5 últimos placares (`atualizado_em` desc) |
 | `/grupos` | `grupos/page.tsx` | Acordeão de grupos, placar, desempate |
 | `/geral` | `geral/page.tsx` | Classificação geral e destino |
 | `/chaves` | `chaves/page.tsx` | Ouro/Prata (ou `FinalsChave` se a etapa for Finals) |
@@ -55,6 +56,7 @@ Hospedagem: Vercel (deploy a cada push na main)
 | `JogadorPicker.tsx` | Escolha de jogadores em tela cheia (múltipla ou única) |
 | `grupos/*` | `GrupoCard`, `TabelaClassificacao`, `ListaJogos`, `PlacarModal`, `DesempateModal` (reusado para seeds e Rank) |
 | `chaves/*` | `ChaveView` (abas de fase), `JogoCard`, `FinalsChave`, `FinalsCard` |
+| `recentes/RecenteCard.tsx` | Card de placar recente (título, vencedor em verde, data) |
 | `BottomNav.tsx`, `PageHeader.tsx`, `Voltar.tsx` | Navegação |
 
 ### `src/lib/` — dados e regras
@@ -62,13 +64,13 @@ Hospedagem: Vercel (deploy a cada push na main)
 |---|---|
 | `firebase.ts` | Conexão; `isAdminEmail` (só UI) |
 | `types.ts` | Tipos do schema + `temporadaDe()` |
-| `useCollection.ts` | Leitura em tempo real com filtro/ordem |
+| `useCollection.ts` | Leitura em tempo real com filtro/ordem (asc/desc) e limite |
 | `useEtapaDados.ts` | Jogadores + grupos + partidas de uma etapa, com a classificação de cada grupo já calculada |
 | `useRank.ts` | Rank de uma temporada (+ Finals da temporada, empate no corte) |
 | `repo.ts` | **Todas as escritas** (lotes, IDs determinísticos) |
 | `defaults.ts` | Tabelas de pontos padrão, nomes das fases |
 | `etapas.ts` | Ordenação/agrupamento por temporada, número único por temporada |
-| `nomes.ts`, `formato.ts` | Normalização de nomes; `+4`/`−3`, placar em texto |
+| `nomes.ts`, `formato.ts` | Normalização de nomes; `+4`/`−3`, placar em texto, data `dd/mm/aaaa`, rótulo do jogo ("Grupo H", "Ouro · Quartas") |
 
 ### `src/lib/engine/` — motor de regras (puro, sem Firebase/React)
 | Arquivo | Regra (SPEC) |
@@ -96,6 +98,8 @@ Hospedagem: Vercel (deploy a cada push na main)
 ## 3. Fluxos principais
 
 **Placar de grupo:** `ListaJogos` → `PlacarModal` (valida com `validarPlacar`) → `salvarPlacar` → Firestore → `onSnapshot` atualiza todos → `useEtapaDados` recalcula `classificarGrupo` → `GrupoCard`/Geral/Chaves (prévia) mudam juntos.
+
+**Recentes:** `salvarPlacar`/`salvarPlacarMataMata` gravam `atualizado_em` (servidor); limpar remove o campo → `recentes/page.tsx` lê `partidas` ordenado por `atualizado_em` desc, limite 5.
 
 **Gerar chave:** Chaves → `classificarGeral` → `definirSeeds` → admin toca "Gerar" → `gerarChave` (grava seeds + todos os jogos, byes resolvidos, etapa → `mata_mata`).
 

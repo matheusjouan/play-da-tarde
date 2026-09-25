@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, ListOrdered, Medal, Network, Users } from "lucide-react";
+import { FileText, History, ListOrdered, Medal, Network, Users } from "lucide-react";
 
 const TABS = [
+  { href: "/recentes", label: "Recentes", icon: History },
   { href: "/grupos", label: "Grupos", icon: Users },
   { href: "/geral", label: "Geral", icon: ListOrdered },
   { href: "/chaves", label: "Chaves", icon: Network },

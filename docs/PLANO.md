@@ -26,6 +26,7 @@ Para iniciar uma etapa numa sessão nova com a IA:
 | E10 | Pontuação, importação, Rank | ✅ Validada |
 | E11 | Finals + desempate do Rank | 🟡 Implementada — aguardando validação final |
 | E12 | Virada de temporada, acesso à Finals, polimento mobile | 🟡 Implementada — bug de camadas corrigido; aguardando validação final |
+| E13 | Aba Recentes (5 últimos placares) | 🟡 Implementada — aguardando validação |
 
 Legenda: ✅ validada pelo usuário · 🟡 implementada, falta o teste manual · ⬜ não iniciada
 
@@ -76,6 +77,15 @@ Legenda: ✅ validada pelo usuário · 🟡 implementada, falta o teste manual �
 2. Grupos e Geral abrem na última etapa regular e não mostram a Finals.
 3. Rolando Grupos e Geral com bloco aberto, a tabela passa **por trás** do cabeçalho.
 4. Celular real, logado e deslogado: todas as abas, acordeões, abas de fase, Ouro/Prata, modal de placar.
+
+### 🟡 E13 — Aba Recentes (DEC-027)
+**Teste:**
+1. Abrir o site (`/`) → cai em **Recentes**, primeira aba; sem placar novo → "Nenhum placar lançado ainda."
+2. Admin lança um placar de grupo → card "GRUPO X" no topo, vencedor em verde com ✓, `Data:` de hoje.
+3. Alterar esse placar → o card sobe ao topo com o placar novo (não duplica).
+4. Lançar 6 placares → só os 5 últimos aparecem. Limpar um placar → o card some.
+5. Mata-mata → "OURO · QUARTAS"; Finals → "FINALS · …"; W.O. mostra o selo.
+6. Deslogado em outro aparelho: atualiza em tempo real. Em 375px: 6 abas legíveis, sem rolagem lateral.
 
 ---
 

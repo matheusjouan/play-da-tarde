@@ -7,6 +7,16 @@ Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/). Deci
 
 ---
 
+## [1.1.0] — 25/09/2026 · E13
+### Adicionado
+- Aba **Recentes** (primeira da barra): cards dos 5 últimos placares lançados ou alterados — grupos e mata-mata, vencedor em verde, `Data: dd/mm/aaaa`, selo W.O. (DEC-027)
+- Campo `atualizado_em` nas partidas (hora do servidor), gravado ao salvar placar e removido ao limpar.
+- `useCollection`: opções `decrescente` e `limite`.
+- `dataCurta` e `rotuloPartida` em `formato.ts`, com `formato.test.ts`.
+
+### Alterado
+- O endereço `/` abre em **Recentes** (antes: Grupos).
+
 ## [1.0.0] — 24/09/2026 · E11 + E12
 Versão completa do plano original.
 

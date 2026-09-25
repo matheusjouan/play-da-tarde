@@ -33,6 +33,7 @@ Decisões não são apagadas: se mudar, cria-se uma nova que **substitui** a ant
 | [DEC-024](#dec-024) | Etapa selecionada compartilhada; Grupos/Geral ignoram Finals | UX | ✅ |
 | [DEC-025](#dec-025) | Exclusões protegidas e em cascata | Dados | ✅ |
 | [DEC-026](#dec-026) | Camadas de tela (z-index) | UX | ✅ |
+| [DEC-027](#dec-027) | Aba Recentes (5 últimos placares) e `atualizado_em` nas partidas | UX/Dados | ✅ |
 
 ---
 
@@ -100,6 +101,13 @@ Decisões não são apagadas: se mudar, cria-se uma nova que **substitui** a ant
 - **Contexto:** a coluna fixa da tabela passava por cima do cabeçalho ao rolar (bug da E12).
 - **Decisão:** coluna fixa `z-[1]` < header/bottom bar `z-30` < seletor de jogadores `z-40` < modais `z-50`.
 - **Onde:** comentário em `src/app/layout.tsx`.
+
+### DEC-027
+**Aba Recentes e `atualizado_em` nas partidas** — 25/09/2026 · ✅
+- **Contexto:** o usuário quis uma aba para ver os últimos resultados sem abrir grupo por grupo; as partidas não guardavam quando o placar foi lançado.
+- **Decisão:** nova aba **Recentes**, a **primeira** da barra (o `/` abre nela): cards dos **5 últimos** placares lançados ou alterados, de **todas as etapas**, grupos e mata-mata (título "Grupo H", "Ouro · Quartas", "Finals · Semi"), vencedor em **verde** e **só a data** (`Data: 25/09/2026`). A partida ganha `atualizado_em` (hora do **servidor**), gravado ao salvar o placar e **removido ao limpar** (o jogo sai da lista). Levar o vencedor ao jogo seguinte do mata-mata não altera o campo.
+- **Consequências:** placares lançados antes desta versão não têm data e **não aparecem** em Recentes. Consulta `orderBy(atualizado_em desc) + limit(5)` usa o índice automático de campo único.
+- **Onde:** `salvarPlacar`/`limparPlacar`/`salvarPlacarMataMata`/`limparPlacarMataMata` em `repo.ts`; `src/app/recentes/page.tsx`; `RecenteCard`; `rotuloPartida`, `dataCurta` em `formato.ts`.
 
 ## Regras do torneio
 
