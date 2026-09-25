@@ -1,5 +1,5 @@
 # ESPECIFICAÇÃO — Sistema de Gestão de Torneio de Tênis "Play da Tarde"
-**Versão:** 1.3 — 25/09/2026 (v1.0 original + decisões validadas durante a implementação; 1.3: aba Recentes)
+**Versão:** 1.4 — 25/09/2026 (v1.0 original + decisões validadas durante a implementação; 1.3: aba Recentes; 1.4: tema escuro)
 **Abordagem:** Specification-Driven Development (SDD), por etapas incrementais
 
 > Este documento descreve **o que o sistema faz** (regras). O **porquê** de cada regra está em [`DECISOES.md`](DECISOES.md);
@@ -24,6 +24,7 @@
 - Tabelas com a coluna do nome fixa; nomes longos cortados com "…".
 - Mata-mata no celular: abas **Oitavas / Quartas / Semi / Final**.
 - Dados sempre em **tempo real** (listeners `onSnapshot`).
+- **Tema claro/escuro** por botão no cabeçalho; a escolha fica salva no aparelho (padrão: claro).
 
 ---
 

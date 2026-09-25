@@ -5,6 +5,8 @@ import { AuthButton } from "@/components/AuthButton";
 import { AuthProvider } from "@/components/AuthProvider";
 import { BottomNav } from "@/components/BottomNav";
 import { EtapaSelecionadaProvider } from "@/components/EtapaSelect";
+import { TemaButton } from "@/components/TemaButton";
+import { SCRIPT_TEMA } from "@/lib/tema";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,14 +27,20 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">
+    <html lang="pt-BR" data-theme="claro" className={`${geistSans.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        {/* Aplica o tema salvo antes da primeira pintura (sem piscar o claro). */}
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA }} />
+      </head>
+      {/* Extensões do navegador (ex.: ColorZilla) injetam atributos no <body>; não é erro do app. */}
+      <body className="flex min-h-full flex-col" suppressHydrationWarning>
         <AuthProvider>
           {/* Camadas: tabela (coluna fixa) z-[1] < header/nav z-30 < seletor z-40 < modal z-50 */}
-          <header className="sticky top-0 z-30 bg-emerald-700 text-white">
+          <header className="sticky top-0 z-30 bg-marca text-white">
             <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
               <Trophy size={22} />
               <span className="flex-1 text-lg font-semibold">Play da Tarde</span>
+              <TemaButton />
               <AuthButton />
             </div>
           </header>

@@ -146,7 +146,7 @@ export default function PontuacaoPage() {
 function ListaPontos({ linhas, nome }: { linhas: Linha[]; nome: (id: string) => string }) {
   if (linhas.length === 0) return <Vazio>Sem jogadores.</Vazio>;
   return (
-    <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
+    <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-superficie">
       {linhas.map((l) => (
         <li key={l.jogadorId} className="flex items-center gap-3 px-4 py-2">
           <span className="min-w-0 flex-1">

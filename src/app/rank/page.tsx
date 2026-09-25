@@ -68,7 +68,7 @@ export default function RankPage() {
                   key={o}
                   aria-pressed={ordem === o}
                   onClick={() => setOrdem(o)}
-                  className={`min-h-11 rounded-md text-sm font-medium ${ordem === o ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}
+                  className={`min-h-11 rounded-md text-sm font-medium ${ordem === o ? "bg-superficie text-slate-900 shadow-sm" : "text-slate-500"}`}
                 >
                   {o === "pontos" ? "Por pontos" : "Por nome"}
                 </button>

@@ -22,6 +22,7 @@
 - Listas longas: `Acordeao` (um aberto por vez, todos fechados ao entrar).
 - Camadas: coluna fixa de tabela `z-[1]` < header/bottom bar `z-30` < `JogadorPicker` `z-40` < `Modal` `z-50`.
 - Cor principal: `emerald-700`; fundo `slate-50`. Páginas usam `PageHeader`.
+- Tema escuro (DEC-028) troca a paleta em `globals.css`: use só cores da paleta — `bg-superficie` para cards/listas/modais (nunca `bg-white`), `bg-marca`/`hover:bg-marca-escura` para fundo verde com texto branco; nada de hex nem `dark:`. Tom novo de cor → mapear em `[data-theme="escuro"]`.
 - Regras de cálculo ficam em `src/lib/engine/` como funções puras com testes Vitest — nunca dentro de componentes.
 - Leituras via listeners em tempo real (`useCollection`, `useEtapaDados`, `useRank`). Escritas **só** em `src/lib/repo.ts`, com `writeBatch` e IDs determinísticos.
 - Escrita só para admin; a proteção real está em `firestore.rules`.

@@ -29,7 +29,7 @@ export function AuthButton() {
         {erro && <span className="text-xs text-red-100">Falha: {erro}</span>}
         <button
           onClick={entrar}
-          className="flex min-h-11 items-center gap-1.5 rounded-lg px-3 text-sm font-medium hover:bg-emerald-800"
+          className="flex min-h-11 items-center gap-1.5 rounded-lg px-3 text-sm font-medium hover:bg-marca-escura"
         >
           <LogIn size={18} /> Entrar
         </button>
@@ -45,7 +45,7 @@ export function AuthButton() {
           className="flex min-h-11 items-center"
           aria-label="Abrir administração"
         >
-          <span className="flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-emerald-800">
+          <span className="flex items-center gap-1 rounded-full bg-superficie px-2.5 py-1 text-xs font-semibold text-emerald-800">
             <ShieldCheck size={14} /> Admin
           </span>
         </Link>
@@ -58,7 +58,7 @@ export function AuthButton() {
         onClick={logout}
         aria-label="Sair"
         title={`Sair (${user.email})`}
-        className="flex min-h-11 min-w-11 items-center justify-center rounded-lg hover:bg-emerald-800"
+        className="flex min-h-11 min-w-11 items-center justify-center rounded-lg hover:bg-marca-escura"
       >
         <LogOut size={18} />
       </button>

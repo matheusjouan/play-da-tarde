@@ -46,7 +46,7 @@ export function ChaveView({ fases, jogos, nome, seed, onEditar }: Props) {
             aria-selected={f === fase}
             onClick={() => setEscolhida(f)}
             className={`min-h-11 flex-1 rounded-md px-3 text-sm font-medium whitespace-nowrap ${
-              f === fase ? "bg-white text-emerald-800 shadow-sm" : "text-slate-600"
+              f === fase ? "bg-superficie text-emerald-800 shadow-sm" : "text-slate-600"
             }`}
           >
             {NOME_FASE[f]}

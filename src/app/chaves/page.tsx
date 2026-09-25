@@ -133,7 +133,7 @@ export default function ChavesPage() {
                 onClick={() => setChave(c.chave)}
                 aria-pressed={chave === c.chave}
                 className={`flex min-h-11 items-center justify-center gap-2 rounded-md font-semibold ${
-                  chave === c.chave ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"
+                  chave === c.chave ? "bg-superficie text-slate-900 shadow-sm" : "text-slate-500"
                 }`}
               >
                 <span className={`size-3 rounded-full ${c.cor}`} /> {c.label}

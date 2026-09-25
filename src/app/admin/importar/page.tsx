@@ -122,7 +122,7 @@ export default function ImportarPage() {
             {itens.length} linhas · {resumo.existentes} jogadores existentes · {resumo.novos} novos
             {resumo.conferir > 0 && <strong className="text-amber-700"> · {resumo.conferir} sugestões para conferir</strong>}
           </p>
-          <ul className="mb-4 divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
+          <ul className="mb-4 divide-y divide-slate-100 rounded-xl border border-slate-200 bg-superficie">
             {itens.map((it, i) => (
               <li key={it.linha} className="space-y-1.5 px-3 py-2">
                 <div className="flex items-baseline gap-2">

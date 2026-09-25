@@ -55,7 +55,7 @@ export function JogoCard({ jogo, nome, seed, onEditar }: Props) {
   );
 
   return (
-    <div className="relative rounded-xl border border-slate-200 bg-white">
+    <div className="relative rounded-xl border border-slate-200 bg-superficie">
       {ehWO(sets) && (
         <span className="absolute -top-2 right-3 rounded bg-slate-200 px-1.5 text-xs font-semibold text-slate-700">W.O.</span>
       )}

@@ -85,7 +85,7 @@ export default function AdminRegulamentosPage() {
       ) : regulamentos.data.length === 0 ? (
         <Vazio>Nenhum regulamento cadastrado.</Vazio>
       ) : (
-        <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
+        <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-superficie">
           {regulamentos.data.map((r) => (
             <li key={r.id} className="flex items-center gap-1 pl-4 pr-2">
               <span className="flex-1 py-2">

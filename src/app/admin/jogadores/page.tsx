@@ -104,7 +104,7 @@ export default function JogadoresPage() {
       ) : visiveis.length === 0 ? (
         <Vazio>{busca ? "Nenhum jogador encontrado." : "Nenhum jogador cadastrado."}</Vazio>
       ) : (
-        <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
+        <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-superficie">
           {visiveis.map((j) =>
             editando?.id === j.id ? (
               <li key={j.id} className="flex items-center gap-1 px-2 py-1">

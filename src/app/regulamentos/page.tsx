@@ -41,7 +41,7 @@ export default function RegulamentosPage() {
                       href={r.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex min-h-14 items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 hover:bg-slate-50"
+                      className="flex min-h-14 items-center gap-3 rounded-xl border border-slate-200 bg-superficie px-4 hover:bg-slate-50"
                     >
                       <FileText className="text-emerald-700" size={22} />
                       <span className="flex-1 font-medium">{r.titulo}</span>

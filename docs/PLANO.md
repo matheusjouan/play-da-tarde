@@ -27,6 +27,7 @@ Para iniciar uma etapa numa sessão nova com a IA:
 | E11 | Finals + desempate do Rank | 🟡 Implementada — aguardando validação final |
 | E12 | Virada de temporada, acesso à Finals, polimento mobile | 🟡 Implementada — bug de camadas corrigido; aguardando validação final |
 | E13 | Aba Recentes (5 últimos placares) | 🟡 Implementada — aguardando validação |
+| E14 | Tema escuro | 🟡 Implementada — aguardando validação |
 
 Legenda: ✅ validada pelo usuário · 🟡 implementada, falta o teste manual · ⬜ não iniciada
 
@@ -86,6 +87,13 @@ Legenda: ✅ validada pelo usuário · 🟡 implementada, falta o teste manual �
 4. Lançar 6 placares → só os 5 últimos aparecem. Limpar um placar → o card some.
 5. Mata-mata → "OURO · QUARTAS"; Finals → "FINALS · …"; W.O. mostra o selo.
 6. Deslogado em outro aparelho: atualiza em tempo real. Em 375px: 6 abas legíveis, sem rolagem lateral.
+
+### 🟡 E14 — Tema escuro (DEC-028)
+**Teste:**
+1. Primeira visita → tema claro, como antes. Tocar na lua do cabeçalho → tudo escuro; o ícone vira sol.
+2. Recarregar a página → continua escuro, **sem piscar** o claro. Fechar e abrir o navegador → continua escuro.
+3. Passar por todas as abas no escuro, logado e deslogado: cards, acordeões, tabela (coluna fixa com o mesmo fundo), abas Ouro/Prata e de fase, avisos amarelos/vermelhos, selo Admin, modal de placar, seletor de jogadores, `select` de etapa.
+4. Voltar para o claro → igual ao de antes da mudança.
 
 ---
 

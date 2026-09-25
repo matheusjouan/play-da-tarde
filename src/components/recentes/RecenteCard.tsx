@@ -38,7 +38,7 @@ export function RecenteCard({ titulo, etapa, jogador1, jogador2, jogador1Venceu,
   );
 
   return (
-    <article className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+    <article className="rounded-xl border border-slate-200 bg-superficie px-4 py-3">
       <header className="mb-1 flex items-baseline justify-between gap-2">
         <h2 className="truncate font-bold tracking-wide text-slate-900 uppercase">{titulo}</h2>
         {etapa && <span className="shrink-0 text-xs text-slate-400">{etapa}</span>}

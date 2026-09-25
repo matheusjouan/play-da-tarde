@@ -7,6 +7,14 @@ Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/). Deci
 
 ---
 
+## [1.2.0] — 25/09/2026 · E14
+### Adicionado
+- **Tema escuro**: botão ☾/☀ no cabeçalho; a escolha fica salva no aparelho (`localStorage`) e é aplicada antes da página aparecer. Padrão: claro. (DEC-028)
+- Cores semânticas `superficie`, `marca`, `marca-escura` em `globals.css`.
+
+### Alterado
+- `bg-white` → `bg-superficie`; fundo do cabeçalho e do botão principal → `bg-marca` / `hover:bg-marca-escura`.
+
 ## [1.1.0] — 25/09/2026 · E13
 ### Adicionado
 - Aba **Recentes** (primeira da barra): cards dos 5 últimos placares lançados ou alterados — grupos e mata-mata, vencedor em verde, `Data: dd/mm/aaaa`, selo W.O. (DEC-027)

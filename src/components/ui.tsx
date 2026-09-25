@@ -2,16 +2,16 @@ import type { ReactNode } from "react";
 
 // Classes compartilhadas (mobile-first: alvos de toque ≥ 44px).
 export const btnPrimary =
-  "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-emerald-700 px-4 font-medium text-white hover:bg-emerald-800 disabled:opacity-50";
+  "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-marca px-4 font-medium text-white hover:bg-marca-escura disabled:opacity-50";
 export const btnSecondary =
-  "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-50";
+  "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-superficie px-4 font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-50";
 export const btnIcon =
   "inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 disabled:opacity-50";
 export const inputCls =
-  "min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-base focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20";
+  "min-h-11 w-full rounded-lg border border-slate-300 bg-superficie px-3 text-base focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20";
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <section className={`rounded-xl border border-slate-200 bg-white p-4 ${className}`}>{children}</section>;
+  return <section className={`rounded-xl border border-slate-200 bg-superficie p-4 ${className}`}>{children}</section>;
 }
 
 export function Field({ label, children }: { label: string; children: ReactNode }) {

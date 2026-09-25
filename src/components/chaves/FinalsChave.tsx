@@ -82,7 +82,7 @@ export function FinalsChave({ etapa, partidas, chaves, isAdmin }: Props) {
         {top.length === 0 ? (
           <Vazio>O Rank da temporada ainda não tem jogadores.</Vazio>
         ) : (
-          <ol className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
+          <ol className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-superficie">
             {top.map((l) => (
               <li key={l.jogadorId} className="flex min-h-11 items-center gap-3 px-4">
                 <span className="w-7 text-right text-emerald-700 tabular-nums">{l.posicao}º</span>

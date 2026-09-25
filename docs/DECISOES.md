@@ -34,6 +34,7 @@ Decisões não são apagadas: se mudar, cria-se uma nova que **substitui** a ant
 | [DEC-025](#dec-025) | Exclusões protegidas e em cascata | Dados | ✅ |
 | [DEC-026](#dec-026) | Camadas de tela (z-index) | UX | ✅ |
 | [DEC-027](#dec-027) | Aba Recentes (5 últimos placares) e `atualizado_em` nas partidas | UX/Dados | ✅ |
+| [DEC-028](#dec-028) | Tema escuro por troca de paleta; preferência no `localStorage` | UX | ✅ |
 
 ---
 
@@ -108,6 +109,13 @@ Decisões não são apagadas: se mudar, cria-se uma nova que **substitui** a ant
 - **Decisão:** nova aba **Recentes**, a **primeira** da barra (o `/` abre nela): cards dos **5 últimos** placares lançados ou alterados, de **todas as etapas**, grupos e mata-mata (título "Grupo H", "Ouro · Quartas", "Finals · Semi"), vencedor em **verde** e **só a data** (`Data: 25/09/2026`). A partida ganha `atualizado_em` (hora do **servidor**), gravado ao salvar o placar e **removido ao limpar** (o jogo sai da lista). Levar o vencedor ao jogo seguinte do mata-mata não altera o campo.
 - **Consequências:** placares lançados antes desta versão não têm data e **não aparecem** em Recentes. Consulta `orderBy(atualizado_em desc) + limit(5)` usa o índice automático de campo único.
 - **Onde:** `salvarPlacar`/`limparPlacar`/`salvarPlacarMataMata`/`limparPlacarMataMata` em `repo.ts`; `src/app/recentes/page.tsx`; `RecenteCard`; `rotuloPartida`, `dataCurta` em `formato.ts`.
+
+### DEC-028
+**Tema escuro por troca de paleta; preferência no `localStorage`** — 25/09/2026 · ✅
+- **Contexto:** o usuário pediu um botão no cabeçalho para alternar para um tema escuro, lembrando a última escolha. As cores estão fixas em ~250 classes (`slate`, `emerald`, `amber`…).
+- **Decisão:** `data-theme="escuro"` no `<html>` **redefine as variáveis da paleta** do Tailwind (neutros invertidos; tons claros das cores de destaque viram fundos escuros e tons de texto viram claros) — sem `dark:` nos componentes. Três cores semânticas com valor próprio: `superficie` (fundo de cards/listas/modais/inputs, no lugar de `bg-white`), `marca` e `marca-escura` (cabeçalho e botão principal, com texto branco). Preferência salva em `localStorage` (`tema`), só naquele aparelho; **padrão = claro**. Um script inline no `<head>` aplica o tema antes da primeira pintura (sem piscar), como recomenda o guia do Next 16.
+- **Consequências:** componente novo ganha o tema escuro de graça, desde que use a paleta (nunca `bg-white` ou cor hex). Tom novo de cor (ex.: `amber-300`) precisa ser mapeado em `globals.css` se for usado.
+- **Onde:** `src/app/globals.css`, `src/lib/tema.ts`, `src/components/TemaButton.tsx`, `<head>` em `src/app/layout.tsx`.
 
 ## Regras do torneio
 

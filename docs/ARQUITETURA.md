@@ -42,7 +42,8 @@ Hospedagem: Vercel (deploy a cada push na main)
 | `/admin/etapas/[id]/pontuacao` | | Prévia de pontos e **Finalizar etapa** |
 | `/admin/regulamentos` | | Links de regulamento |
 | `/admin/importar` | | Importação CSV de etapa passada |
-| (layout) | `layout.tsx` | Header, `AuthProvider`, `EtapaSelecionadaProvider`, `BottomNav` |
+| (layout) | `layout.tsx` | Script do tema no `<head>`, header, `AuthProvider`, `EtapaSelecionadaProvider`, `BottomNav` |
+| (estilos) | `globals.css` | Cores semânticas (`superficie`, `marca`) e a paleta do tema escuro (`[data-theme="escuro"]`) |
 
 ### `src/components/` — interface
 | Arquivo | Papel |
@@ -58,6 +59,7 @@ Hospedagem: Vercel (deploy a cada push na main)
 | `chaves/*` | `ChaveView` (abas de fase), `JogoCard`, `FinalsChave`, `FinalsCard` |
 | `recentes/RecenteCard.tsx` | Card de placar recente (título, vencedor em verde, data) |
 | `BottomNav.tsx`, `PageHeader.tsx`, `Voltar.tsx` | Navegação |
+| `TemaButton.tsx` | Alterna tema claro/escuro no cabeçalho (lógica em `lib/tema.ts`) |
 
 ### `src/lib/` — dados e regras
 | Arquivo | Papel |
@@ -70,6 +72,7 @@ Hospedagem: Vercel (deploy a cada push na main)
 | `repo.ts` | **Todas as escritas** (lotes, IDs determinísticos) |
 | `defaults.ts` | Tabelas de pontos padrão, nomes das fases |
 | `etapas.ts` | Ordenação/agrupamento por temporada, número único por temporada |
+| `tema.ts` | Tema salvo no `localStorage`, aplicar/salvar, script anti-"piscar" |
 | `nomes.ts`, `formato.ts` | Normalização de nomes; `+4`/`−3`, placar em texto, data `dd/mm/aaaa`, rótulo do jogo ("Grupo H", "Ouro · Quartas") |
 
 ### `src/lib/engine/` — motor de regras (puro, sem Firebase/React)
@@ -116,7 +119,7 @@ Hospedagem: Vercel (deploy a cada push na main)
 1. **Regra nova ou alterada?** Atualize `SPEC.md` e registre em `DECISOES.md` (nova DEC; se substituir, marque a antiga como 🔁).
 2. **Cálculo?** Escreva/ajuste o teste em `src/lib/engine/*.test.ts` **antes**, depois a função.
 3. **Escrita no banco?** Só em `repo.ts`, com `writeBatch` quando mexer em mais de um documento. Campo novo → atualize `types.ts` e o schema na SPEC.
-4. **Tela?** Mobile-first (≥ 44px, sem rolagem lateral em 375px), acordeão para listas, `PageHeader`, textos em pt-BR.
+4. **Tela?** Mobile-first (≥ 44px, sem rolagem lateral em 375px), acordeão para listas, `PageHeader`, textos em pt-BR. Cores só da paleta: `bg-superficie` (não `bg-white`), `bg-marca`; confira no tema escuro (DEC-028).
 5. **Verificação:** `npx tsc --noEmit` · `npm run lint` · `npm test` · `npm run build`.
 6. **Registro:** entrada no topo de `CHANGELOG.md`; atualize `PLANO.md` se for etapa nova.
 7. `git add . ; git commit -m "..." ; git push` → a Vercel publica.

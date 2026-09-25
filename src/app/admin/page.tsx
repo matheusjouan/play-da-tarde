@@ -18,7 +18,7 @@ export default function AdminPage() {
           <li key={href}>
             <Link
               href={href}
-              className="flex min-h-16 items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 hover:bg-slate-50"
+              className="flex min-h-16 items-center gap-3 rounded-xl border border-slate-200 bg-superficie px-4 hover:bg-slate-50"
             >
               <Icon className="text-emerald-700" size={24} />
               <span className="flex-1">

@@ -38,7 +38,7 @@ export default function EtapasPage() {
                   <li key={e.id}>
                     <Link
                       href={`/admin/etapas/${e.id}`}
-                      className="flex min-h-16 items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 hover:bg-slate-50"
+                      className="flex min-h-16 items-center gap-3 rounded-xl border border-slate-200 bg-superficie px-4 hover:bg-slate-50"
                     >
                       <span className="flex-1">
                         <span className="block font-medium">{e.nome}</span>
