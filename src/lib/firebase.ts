@@ -18,11 +18,20 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 
 // Só controla a UI. A proteção real está em firestore.rules.
-const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "")
-  .split(",")
-  .map((e) => e.trim().toLowerCase())
-  .filter(Boolean);
+const lista = (valor: string | undefined) =>
+  (valor ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+
+const ADMIN_EMAILS = lista(process.env.NEXT_PUBLIC_ADMIN_EMAILS);
+/** Só lançam/editam placar (DEC-029). */
+const PLACAR_EMAILS = lista(process.env.NEXT_PUBLIC_PLACAR_EMAILS);
 
 export function isAdminEmail(email: string | null | undefined): boolean {
   return !!email && ADMIN_EMAILS.includes(email.toLowerCase());
+}
+
+export function isPlacarEmail(email: string | null | undefined): boolean {
+  return !!email && PLACAR_EMAILS.includes(email.toLowerCase());
 }

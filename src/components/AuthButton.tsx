@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { LogIn, LogOut, ShieldAlert, ShieldCheck } from "lucide-react";
+import { LogIn, LogOut, Pencil, ShieldAlert, ShieldCheck } from "lucide-react";
 import { FirebaseError } from "firebase/app";
 import { useAuth } from "@/components/AuthProvider";
 
 export function AuthButton() {
-  const { user, isAdmin, loading, login, logout } = useAuth();
+  const { user, isAdmin, podeLancarPlacar, loading, login, logout } = useAuth();
   const [erro, setErro] = useState<string | null>(null);
 
   if (loading) return null;
@@ -49,6 +49,10 @@ export function AuthButton() {
             <ShieldCheck size={14} /> Admin
           </span>
         </Link>
+      ) : podeLancarPlacar ? (
+        <span className="flex items-center gap-1 rounded-full bg-superficie px-2.5 py-1 text-xs font-semibold text-emerald-800">
+          <Pencil size={14} /> Placar
+        </span>
       ) : (
         <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-900">
           <ShieldAlert size={14} /> Sem permissão

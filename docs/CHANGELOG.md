@@ -7,6 +7,14 @@ Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/). Deci
 
 ---
 
+## [1.3.0] — 25/09/2026 · E15
+### Adicionado
+- Perfil **Placar** (2 e-mails): só lança, edita e limpa placar de jogos de grupo, mata-mata e Finals; selo "Placar" no cabeçalho, sem acesso ao Admin. Imposto em `firestore.rules`. (DEC-029)
+- Variável `NEXT_PUBLIC_PLACAR_EMAILS`.
+
+### Alterado
+- `ListaJogos`: prop `isAdmin` → `podeEditar`; `GrupoCard` ganha `podeEditarPlacar`; `FinalsChave` ganha `podeLancarPlacar`.
+
 ## [1.2.0] — 25/09/2026 · E14
 ### Adicionado
 - **Tema escuro**: botão ☾/☀ no cabeçalho; a escolha fica salva no aparelho (`localStorage`) e é aplicada antes da página aparecer. Padrão: claro. (DEC-028)

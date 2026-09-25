@@ -15,10 +15,10 @@ import { temporadaDe, type ChaveDoc, type Etapa, type Partida } from "@/lib/type
 // A chave da Finals é gravada como a chave "ouro" da etapa do tipo "finals" (não gera pontos).
 const CHAVE = "ouro" as const;
 
-type Props = { etapa: Etapa; partidas: Partida[]; chaves: ChaveDoc[]; isAdmin: boolean };
+type Props = { etapa: Etapa; partidas: Partida[]; chaves: ChaveDoc[]; isAdmin: boolean; podeLancarPlacar: boolean };
 
 /** Finals (SPEC P2): mata-mata direto com o Top 8 do Rank da temporada — 1×8, 4×5, 3×6, 2×7. */
-export function FinalsChave({ etapa, partidas, chaves, isAdmin }: Props) {
+export function FinalsChave({ etapa, partidas, chaves, isAdmin, podeLancarPlacar }: Props) {
   const temporada = temporadaDe(etapa);
   const rank = useRank(temporada);
   const [editando, setEditando] = useState<string | null>(null);
@@ -154,11 +154,11 @@ export function FinalsChave({ etapa, partidas, chaves, isAdmin }: Props) {
           jogos={jogos}
           nome={rank.nome}
           seed={seed}
-          onEditar={isAdmin && docChave ? (j) => j.id && setEditando(j.id) : undefined}
+          onEditar={podeLancarPlacar && docChave ? (j) => j.id && setEditando(j.id) : undefined}
         />
       )}
 
-      {isAdmin && partidaEditando && (
+      {podeLancarPlacar && partidaEditando && (
         <PlacarModal
           key={partidaEditando.id}
           partida={partidaEditando}

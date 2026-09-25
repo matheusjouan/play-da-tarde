@@ -63,7 +63,9 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
 NEXT_PUBLIC_ADMIN_EMAILS=seu-email@gmail.com
+NEXT_PUBLIC_PLACAR_EMAILS=email1@gmail.com,email2@gmail.com
 ```
+`NEXT_PUBLIC_PLACAR_EMAILS` = quem só lança/edita placar (DEC-029); deve bater com a lista de `isPlacar()` em `firestore.rules`.
 (Essas chaves Web do Firebase são públicas por natureza; a proteção real são as Security Rules. O `.env.local` já fica fora do Git.)
 
 ## 6. GitHub

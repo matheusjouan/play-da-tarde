@@ -23,7 +23,7 @@ const CHAVES: { chave: Chave; label: string; cor: string }[] = [
 ];
 
 export default function ChavesPage() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, podeLancarPlacar } = useAuth();
   const etapas = useEtapaSelecionada();
   const { etapa, lista, setEtapaId } = etapas;
   const dados = useEtapaDados(etapa?.id);
@@ -121,7 +121,7 @@ export default function ChavesPage() {
       ) : !etapa ? (
         <Vazio>Nenhuma etapa em andamento.</Vazio>
       ) : etapa.tipo === "finals" ? (
-        <FinalsChave etapa={etapa} partidas={dados.partidas} chaves={chavesDocs.data} isAdmin={isAdmin} />
+        <FinalsChave etapa={etapa} partidas={dados.partidas} chaves={chavesDocs.data} isAdmin={isAdmin} podeLancarPlacar={podeLancarPlacar} />
       ) : dados.grupos.length === 0 ? (
         <Vazio>Os grupos desta etapa ainda não foram montados.</Vazio>
       ) : (
@@ -210,13 +210,13 @@ export default function ChavesPage() {
               jogos={jogos}
               nome={dados.nome}
               seed={seed}
-              onEditar={isAdmin && docChave ? (j) => j.id && setEditando(j.id) : undefined}
+              onEditar={podeLancarPlacar && docChave ? (j) => j.id && setEditando(j.id) : undefined}
             />
           )}
         </div>
       )}
 
-      {isAdmin && partidaEditando && (
+      {podeLancarPlacar && partidaEditando && (
         <PlacarModal
           key={partidaEditando.id}
           partida={partidaEditando}

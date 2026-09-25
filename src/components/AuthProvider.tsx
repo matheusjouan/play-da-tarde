@@ -2,11 +2,13 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut, type User } from "firebase/auth";
-import { auth, isAdminEmail } from "@/lib/firebase";
+import { auth, isAdminEmail, isPlacarEmail } from "@/lib/firebase";
 
 type AuthState = {
   user: User | null;
   isAdmin: boolean;
+  /** Admin ou perfil "Placar" (DEC-029): pode lançar/editar placar, e só isso. */
+  podeLancarPlacar: boolean;
   loading: boolean;
   login: () => Promise<void>;
   logout: () => Promise<void>;
@@ -27,9 +29,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const isAdmin = !!user?.emailVerified && isAdminEmail(user.email);
   const value: AuthState = {
     user,
-    isAdmin: !!user?.emailVerified && isAdminEmail(user.email),
+    isAdmin,
+    podeLancarPlacar: isAdmin || (!!user?.emailVerified && isPlacarEmail(user.email)),
     loading,
     login: async () => {
       const provider = new GoogleAuthProvider();

@@ -25,7 +25,7 @@
 - Tema escuro (DEC-028) troca a paleta em `globals.css`: use só cores da paleta — `bg-superficie` para cards/listas/modais (nunca `bg-white`), `bg-marca`/`hover:bg-marca-escura` para fundo verde com texto branco; nada de hex nem `dark:`. Tom novo de cor → mapear em `[data-theme="escuro"]`.
 - Regras de cálculo ficam em `src/lib/engine/` como funções puras com testes Vitest — nunca dentro de componentes.
 - Leituras via listeners em tempo real (`useCollection`, `useEtapaDados`, `useRank`). Escritas **só** em `src/lib/repo.ts`, com `writeBatch` e IDs determinísticos.
-- Escrita só para admin; a proteção real está em `firestore.rules`.
+- Escrita só para admin, exceto o perfil Placar (DEC-029), que só lança/edita placar (`podeLancarPlacar`); todo o resto usa `isAdmin`. A proteção real está em `firestore.rules`.
 
 ## Verificação antes de entregar
 `npx tsc --noEmit`, `npm run lint`, `npm test`, `npm run build`.

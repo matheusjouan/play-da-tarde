@@ -13,14 +13,28 @@ type Props = {
   jogos: Partida[];
   classificacao: Classificacao;
   nome: (id: string | null) => string;
+  /** Desempate manual (só admin). */
   isAdmin: boolean;
+  /** Lápis nos jogos (admin ou perfil Placar). */
+  podeEditarPlacar: boolean;
   aberto: boolean;
   onAlternar: () => void;
   onEditarPlacar: (p: Partida) => void;
   onDesempatar: (empatados: string[]) => void;
 };
 
-export function GrupoCard({ grupo, jogos, classificacao, nome, isAdmin, aberto, onAlternar, onEditarPlacar, onDesempatar }: Props) {
+export function GrupoCard({
+  grupo,
+  jogos,
+  classificacao,
+  nome,
+  isAdmin,
+  podeEditarPlacar,
+  aberto,
+  onAlternar,
+  onEditarPlacar,
+  onDesempatar,
+}: Props) {
   const jogados = jogos.filter((p) => p.vencedorId).length;
   const completo = jogos.length > 0 && jogados === jogos.length;
   // Empate total só é sinalizado com o grupo completo (no meio do grupo é normal haver empates).
@@ -60,7 +74,7 @@ export function GrupoCard({ grupo, jogos, classificacao, nome, isAdmin, aberto, 
 
       <div>
         <h3 className="mb-1 text-sm font-semibold text-slate-600">Jogos</h3>
-        <ListaJogos jogos={jogos} nome={nome} isAdmin={isAdmin} onEditar={onEditarPlacar} />
+        <ListaJogos jogos={jogos} nome={nome} podeEditar={podeEditarPlacar} onEditar={onEditarPlacar} />
       </div>
     </Acordeao>
   );

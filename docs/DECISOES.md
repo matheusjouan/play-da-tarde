@@ -35,6 +35,7 @@ Decisões não são apagadas: se mudar, cria-se uma nova que **substitui** a ant
 | [DEC-026](#dec-026) | Camadas de tela (z-index) | UX | ✅ |
 | [DEC-027](#dec-027) | Aba Recentes (5 últimos placares) e `atualizado_em` nas partidas | UX/Dados | ✅ |
 | [DEC-028](#dec-028) | Tema escuro por troca de paleta; preferência no `localStorage` | UX | ✅ |
+| [DEC-029](#dec-029) | Perfil "Placar": só lança/edita placar, imposto nas Rules | Segurança | ✅ |
 
 ---
 
@@ -116,6 +117,13 @@ Decisões não são apagadas: se mudar, cria-se uma nova que **substitui** a ant
 - **Decisão:** `data-theme="escuro"` no `<html>` **redefine as variáveis da paleta** do Tailwind (neutros invertidos; tons claros das cores de destaque viram fundos escuros e tons de texto viram claros) — sem `dark:` nos componentes. Três cores semânticas com valor próprio: `superficie` (fundo de cards/listas/modais/inputs, no lugar de `bg-white`), `marca` e `marca-escura` (cabeçalho e botão principal, com texto branco). Preferência salva em `localStorage` (`tema`), só naquele aparelho; **padrão = claro**. Um script inline no `<head>` aplica o tema antes da primeira pintura (sem piscar), como recomenda o guia do Next 16.
 - **Consequências:** componente novo ganha o tema escuro de graça, desde que use a paleta (nunca `bg-white` ou cor hex). Tom novo de cor (ex.: `amber-300`) precisa ser mapeado em `globals.css` se for usado.
 - **Onde:** `src/app/globals.css`, `src/lib/tema.ts`, `src/components/TemaButton.tsx`, `<head>` em `src/app/layout.tsx`.
+
+### DEC-029
+**Perfil "Placar": só lança/edita placar, imposto nas Rules** — 25/09/2026 · ✅
+- **Contexto:** o usuário quis dar a 2 pessoas (`matheusjouan007@gmail.com`, `osiel.andre.oliveira@gmail.com`) o poder de lançar e editar placares — **e nada mais**, nem acesso ao Admin.
+- **Decisão:** segundo perfil com e-mails **fixos, como o admin** (DEC-004): lista em `isPlacar()` no `firestore.rules` + `NEXT_PUBLIC_PLACAR_EMAILS` (só UI). As Rules deixam esse perfil fazer **apenas `update` em `partidas`** de dois tipos: (a) mudar só `sets` (≤ 3), `vencedorId` (um dos dois jogadores ou nulo) e `atualizado_em` (= hora do servidor ou removido); (b) no mata-mata, mudar só `jogador1Id`/`jogador2Id` de um jogo **ainda sem placar** (levar/tirar o vencedor). Nenhuma criação, exclusão ou escrita em outra coleção. Na UI: lápis e modal de placar em Grupos/Chaves/Finals; selo "Placar" no cabeçalho (sem link); desempates, gerar/ajustar/regenerar chave, prévia da Finals e `/admin` continuam só do admin.
+- **Consequências:** trocar e-mail = editar os dois lugares, publicar as regras e redeploy. Limite conhecido: no caso (b) as Rules não conferem *qual* jogador entra no jogo seguinte (a tela sempre põe o vencedor); só dá para burlar fora do app, e só em jogo de mata-mata ainda não disputado.
+- **Onde:** `firestore.rules`; `isPlacarEmail` em `src/lib/firebase.ts`; `podeLancarPlacar` em `AuthProvider`; `AuthButton`; `grupos/page.tsx`, `GrupoCard`, `ListaJogos`, `chaves/page.tsx`, `FinalsChave`.
 
 ## Regras do torneio
 

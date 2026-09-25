@@ -1,18 +1,53 @@
 rules_version = '2';
 
-// Leitura pública; escrita só para admins com e-mail Google verificado.
-// Para adicionar admins: incluir o e-mail na lista abaixo (e em NEXT_PUBLIC_ADMIN_EMAILS).
+// Leitura pública. Escrita:
+// - admin: tudo;
+// - placar (DEC-029): só lançar/editar/limpar placar das partidas — nada mais.
+// Para mudar e-mails: editar a lista aqui E a variável correspondente (NEXT_PUBLIC_ADMIN_EMAILS /
+// NEXT_PUBLIC_PLACAR_EMAILS no .env.local e na Vercel), publicar as regras e fazer redeploy.
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isAdmin() {
+    function emailNaLista(lista) {
       return request.auth != null
         && request.auth.token.email_verified == true
-        && request.auth.token.email in ['matheusjouan@gmail.com'];
+        && request.auth.token.email in lista;
+    }
+
+    function isAdmin() {
+      return emailNaLista(['matheusjouan@gmail.com']);
+    }
+
+    function isPlacar() {
+      return emailNaLista(['matheusjouan007@gmail.com', 'osiel.andre.oliveira@gmail.com']);
+    }
+
+    function camposAlterados() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    // Salvar ou limpar o placar: só sets, vencedor (um dos dois jogadores ou nenhum) e a data do servidor.
+    function lancaPlacar() {
+      let d = request.resource.data;
+      return camposAlterados().hasOnly(['sets', 'vencedorId', 'atualizado_em'])
+        && d.sets is list && d.sets.size() <= 3
+        && (d.vencedorId == null || d.vencedorId == d.jogador1Id || d.vencedorId == d.jogador2Id)
+        && (!('atualizado_em' in d) || d.atualizado_em == request.time);
+    }
+
+    // Mata-mata: levar (ou tirar) o vencedor para o jogo seguinte, que ainda não foi disputado.
+    function avancaVencedor() {
+      return resource.data.fase != 'grupo'
+        && resource.data.sets.size() == 0
+        && camposAlterados().hasOnly(['jogador1Id', 'jogador2Id']);
     }
 
     match /{document=**} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    match /partidas/{partidaId} {
+      allow update: if isPlacar() && (lancaPlacar() || avancaVencedor());
     }
   }
 }

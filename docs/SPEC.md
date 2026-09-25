@@ -1,5 +1,5 @@
 # ESPECIFICAÇÃO — Sistema de Gestão de Torneio de Tênis "Play da Tarde"
-**Versão:** 1.4 — 25/09/2026 (v1.0 original + decisões validadas durante a implementação; 1.3: aba Recentes; 1.4: tema escuro)
+**Versão:** 1.5 — 25/09/2026 (v1.0 original + decisões validadas durante a implementação; 1.3: aba Recentes; 1.4: tema escuro; 1.5: perfil Placar)
 **Abordagem:** Specification-Driven Development (SDD), por etapas incrementais
 
 > Este documento descreve **o que o sistema faz** (regras). O **porquê** de cada regra está em [`DECISOES.md`](DECISOES.md);
@@ -166,9 +166,10 @@ regulamentos/{auto}
 
 ## 6. AUTENTICAÇÃO E PERMISSÕES
 
-- **Público:** leitura de tudo. **Admin (Google):** única escrita.
+- **Público:** leitura de tudo. **Admin (Google):** escreve tudo.
+- **Placar (Google, 2 e-mails):** só lança, edita e limpa placar de partidas (grupo, mata-mata, Finals — o vencedor do mata-mata avança). Não cria nem apaga nada, não mexe em desempates, chaves, etapas, jogadores, regulamentos; sem acesso ao Admin. Imposto em `firestore.rules` (`isPlacar()`); a UI (`NEXT_PUBLIC_PLACAR_EMAILS`) só espelha.
 - Imposto em `firestore.rules`: `write` só com `request.auth.token.email_verified == true` e e-mail na lista de admins. A UI (`NEXT_PUBLIC_ADMIN_EMAILS`) só espelha.
-- Para adicionar admin: incluir o e-mail **nos dois lugares** e republicar as regras.
+- Para adicionar admin ou perfil Placar: incluir o e-mail **nos dois lugares** (Rules + variável) e republicar as regras.
 
 ---
 

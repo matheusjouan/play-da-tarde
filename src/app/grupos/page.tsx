@@ -14,7 +14,7 @@ import { useEtapaDados } from "@/lib/useEtapaDados";
 import type { Grupo } from "@/lib/types";
 
 export default function GruposPage() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, podeLancarPlacar } = useAuth();
   const etapas = useEtapaSelecionada({ incluirFinals: false });
   const { etapa, lista, setEtapaId } = etapas;
   const dados = useEtapaDados(etapa?.id);
@@ -52,6 +52,7 @@ export default function GruposPage() {
               classificacao={classificacao}
               nome={nome}
               isAdmin={isAdmin}
+              podeEditarPlacar={podeLancarPlacar}
               aberto={aberto === g.id}
               onAlternar={() => setAberto(alternar(aberto, g.id))}
               onEditarPlacar={(p) => setEditando(p.id)}
@@ -61,7 +62,7 @@ export default function GruposPage() {
         </div>
       )}
 
-      {isAdmin && partidaEditando && (
+      {podeLancarPlacar && partidaEditando && (
         <PlacarModal
           key={partidaEditando.id}
           partida={partidaEditando}

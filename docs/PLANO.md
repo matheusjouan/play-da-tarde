@@ -28,6 +28,7 @@ Para iniciar uma etapa numa sessão nova com a IA:
 | E12 | Virada de temporada, acesso à Finals, polimento mobile | 🟡 Implementada — bug de camadas corrigido; aguardando validação final |
 | E13 | Aba Recentes (5 últimos placares) | 🟡 Implementada — aguardando validação |
 | E14 | Tema escuro | 🟡 Implementada — aguardando validação |
+| E15 | Perfil "Placar" (só lança/edita placar) | 🟡 Implementada — publicar regras + variável na Vercel; aguardando validação |
 
 Legenda: ✅ validada pelo usuário · 🟡 implementada, falta o teste manual · ⬜ não iniciada
 
@@ -94,6 +95,16 @@ Legenda: ✅ validada pelo usuário · 🟡 implementada, falta o teste manual �
 2. Recarregar a página → continua escuro, **sem piscar** o claro. Fechar e abrir o navegador → continua escuro.
 3. Passar por todas as abas no escuro, logado e deslogado: cards, acordeões, tabela (coluna fixa com o mesmo fundo), abas Ouro/Prata e de fase, avisos amarelos/vermelhos, selo Admin, modal de placar, seletor de jogadores, `select` de etapa.
 4. Voltar para o claro → igual ao de antes da mudança.
+
+### 🟡 E15 — Perfil "Placar" (DEC-029)
+**Antes:** publicar `firestore.rules` no Console do Firebase; `NEXT_PUBLIC_PLACAR_EMAILS` na Vercel + redeploy.
+**Teste:**
+1. Entrar com `matheusjouan007@gmail.com` → selo **"Placar"** (sem link). Abrir `/admin` pela URL → "Área restrita".
+2. Grupos: lápis nos jogos → lançar, editar e limpar placar funcionam; **não** aparece "Definir ordem" em empate.
+3. Chaves: lançar placar do mata-mata → vencedor avança; **não** aparecem Gerar / Ajustar seeds / Regenerar. Finals: só lança placar; sem prévia antes de divulgada.
+4. Geral e Rank: sem botões de desempate.
+5. Rules Playground (Console → Firestore → Regras), autenticado como esse e-mail com `email_verified = true`: `update` em `partidas/...` só com `sets`/`vencedorId` → permitido; `update` em `etapas/...` ou `create` em `jogadores` → **negado**.
+6. Admin continua fazendo tudo; conta sem perfil continua "Sem permissão".
 
 ---
 

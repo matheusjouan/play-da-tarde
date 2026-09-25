@@ -64,7 +64,7 @@ Hospedagem: Vercel (deploy a cada push na main)
 ### `src/lib/` — dados e regras
 | Arquivo | Papel |
 |---|---|
-| `firebase.ts` | Conexão; `isAdminEmail` (só UI) |
+| `firebase.ts` | Conexão; `isAdminEmail`, `isPlacarEmail` (só UI) |
 | `types.ts` | Tipos do schema + `temporadaDe()` |
 | `useCollection.ts` | Leitura em tempo real com filtro/ordem (asc/desc) e limite |
 | `useEtapaDados.ts` | Jogadores + grupos + partidas de uma etapa, com a classificação de cada grupo já calculada |
@@ -134,6 +134,7 @@ Hospedagem: Vercel (deploy a cada push na main)
 | Testes | `npm test` |
 | Publicar | `git push` (Vercel faz o deploy) |
 | Novo admin | e-mail em `firestore.rules` + `NEXT_PUBLIC_ADMIN_EMAILS` (`.env.local` e Vercel) → publicar regras → redeploy |
+| Perfil Placar (só placar) | e-mail em `isPlacar()` do `firestore.rules` + `NEXT_PUBLIC_PLACAR_EMAILS` (`.env.local` e Vercel) → publicar regras → redeploy (DEC-029) |
 | Nova temporada | Criar etapas com a Temporada do ano (número recomeça em 1) |
 | Etapa passada | Admin → Importar etapa (CSV) |
 | Windows | Se `npm` não for reconhecido no PowerShell, use `npm.cmd` / `npx.cmd` |

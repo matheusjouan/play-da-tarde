@@ -5,11 +5,11 @@ import type { Partida } from "@/lib/types";
 type Props = {
   jogos: Partida[];
   nome: (id: string | null) => string;
-  isAdmin: boolean;
+  podeEditar: boolean;
   onEditar: (p: Partida) => void;
 };
 
-export function ListaJogos({ jogos, nome, isAdmin, onEditar }: Props) {
+export function ListaJogos({ jogos, nome, podeEditar, onEditar }: Props) {
   return (
     <ul className="divide-y divide-slate-100 text-sm">
       {jogos.map((p) => {
@@ -36,12 +36,12 @@ export function ListaJogos({ jogos, nome, isAdmin, onEditar }: Props) {
             ) : (
               <span className="text-xs text-slate-400">a jogar</span>
             )}
-            {isAdmin && <Pencil size={16} className="shrink-0 text-emerald-700" />}
+            {podeEditar && <Pencil size={16} className="shrink-0 text-emerald-700" />}
           </>
         );
         return (
           <li key={p.id}>
-            {isAdmin ? (
+            {podeEditar ? (
               <button
                 onClick={() => onEditar(p)}
                 className="flex min-h-14 w-full items-center gap-3 py-2 text-left hover:bg-slate-50"
