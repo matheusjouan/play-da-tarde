@@ -74,20 +74,35 @@ describe("proximoJogo", () => {
 });
 
 describe("definirSeeds", () => {
-  const linha = (jogadorId: string, vitorias: number, saldoSets: number, saldoGames: number, posicao: number): LinhaGeral => ({
-    jogadorId, vitorias, saldoSets, saldoGames, posicao, posicaoGrupo: 1, grupoId: "g", destino: "ouro",
+  const linha = (
+    jogadorId: string,
+    vitorias: number,
+    saldoSets: number,
+    saldoGames: number,
+    posicao: number,
+    posicaoGrupo = 1,
+  ): LinhaGeral => ({
+    jogadorId, vitorias, saldoSets, saldoGames, posicao, posicaoGrupo, grupoId: "g", destino: "ouro",
     jogos: 4, derrotas: 4 - vitorias, setsPro: 0, setsContra: 0,
   });
 
-  it("vitórias > saldo de sets > saldo de games (um 2º de grupo pode ser seed #1)", () => {
-    const r = definirSeeds([linha("a", 3, 4, 10, 1), linha("b", 4, 6, 12, 9), linha("c", 3, 4, 12, 2)]);
-    expect(r.seeds).toEqual(["b", "c", "a"]);
+  it("mantém a ordem recebida (já definida pela geral); nunca reordena um 2º de grupo acima de um 1º", () => {
+    const primeiro = linha("a", 2, 2, 5, 1, 1);
+    const segundo = linha("b", 4, 6, 12, 2, 2); // métricas melhores, mas é 2º de grupo → continua depois
+    const r = definirSeeds([primeiro, segundo]);
+    expect(r.seeds).toEqual(["a", "b"]);
     expect(r.empates).toEqual([]);
   });
 
-  it("empate total mantém a ordem da classificação geral e é sinalizado", () => {
+  it("empate total (mesma posição no grupo e mesmas métricas) mantém a ordem de entrada e é sinalizado", () => {
     const r = definirSeeds([linha("a", 3, 4, 10, 1), linha("b", 3, 4, 10, 2), linha("c", 1, 0, 0, 3)]);
     expect(r.seeds).toEqual(["a", "b", "c"]);
     expect(r.empates).toEqual([["a", "b"]]);
+  });
+
+  it("mesmas métricas mas posição de grupo diferente não é empate", () => {
+    const r = definirSeeds([linha("a", 3, 4, 10, 1, 1), linha("b", 3, 4, 10, 2, 2)]);
+    expect(r.seeds).toEqual(["a", "b"]);
+    expect(r.empates).toEqual([]);
   });
 });

@@ -7,6 +7,10 @@ Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/). Deci
 
 ---
 
+## [1.3.1] — 29/09/2026
+### Corrigido
+- Seeds das chaves Ouro/Prata agora seguem a mesma ordem da aba Geral (posição no grupo antes das métricas) em vez de reordenar os 16 classificados só por vitórias/saldo — um 2º de grupo não pode mais aparecer como seed acima de um 1º. Reportado pelo usuário com um caso real em andamento. (DEC-030, substitui DEC-014)
+
 ## [1.3.0] — 25/09/2026 · E15
 ### Adicionado
 - Perfil **Placar** (2 e-mails): só lança, edita e limpa placar de jogos de grupo, mata-mata e Finals; selo "Placar" no cabeçalho, sem acesso ao Admin. Imposto em `firestore.rules`. (DEC-029)

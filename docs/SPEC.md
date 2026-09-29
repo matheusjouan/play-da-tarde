@@ -1,5 +1,5 @@
 # ESPECIFICAÇÃO — Sistema de Gestão de Torneio de Tênis "Play da Tarde"
-**Versão:** 1.5 — 25/09/2026 (v1.0 original + decisões validadas durante a implementação; 1.3: aba Recentes; 1.4: tema escuro; 1.5: perfil Placar)
+**Versão:** 1.6 — 29/09/2026 (v1.0 original + decisões validadas durante a implementação; 1.3: aba Recentes; 1.4: tema escuro; 1.5: perfil Placar; 1.6: seeds seguem a geral)
 **Abordagem:** Specification-Driven Development (SDD), por etapas incrementais
 
 > Este documento descreve **o que o sistema faz** (regras). O **porquê** de cada regra está em [`DECISOES.md`](DECISOES.md);
@@ -68,13 +68,12 @@ Cada etapa configura `vagas_ouro` e `vagas_prata` (padrão 16/16, máx. 16 por c
 
 ### 3.7 Chaves Ouro e Prata
 - A chave oficial só pode ser **gerada pelo admin** quando **todos os jogos de grupo** estiverem encerrados. Antes disso, **prévia pública** calculada ao vivo.
-- **Seeds:** entre os classificados da chave, por vitórias → saldo de sets → saldo de games; empate total mantém a ordem da classificação geral e é sinalizado ao admin. (Um 2º de grupo pode ser seed #1.)
+- **Seeds:** a mesma ordem da classificação geral da etapa (3.2: posição no grupo → vitórias → saldo de sets → saldo de games → manual) — um 2º colocado de grupo nunca fica à frente de um 1º. Empate total (mesma posição no grupo e mesmas métricas) é sinalizado ao admin.
 - **Posições (soma 17 + quadrantes):** `1×16, 8×9, 5×12, 4×13 | 3×14, 6×11, 7×10, 2×15`. #1 e #2 só se cruzam na final.
 - **Tamanho** = próxima potência de 2 (2, 4, 8 ou 16). Seeds ausentes = **bye** para os melhores seeds (avançam direto).
 - Vencedor **avança automaticamente**. Não se pode mudar o vencedor de um jogo cujo jogo seguinte já tem placar.
 - **Ajustar seeds** (reordenar manualmente) só antes do 1º resultado. Com resultado, a chave **trava**; **Regenerar** exige confirmação dupla e apaga os placares do mata-mata.
 - Aviso ao admin se a classificação dos grupos mudar depois da geração.
-- ⚠️ Em aberto com a organização: jogadores do **mesmo grupo** podem se cruzar nas oitavas (hoje resolvido caso a caso com "Ajustar seeds").
 
 ### 3.8 Pontuação e Rank da temporada
 - Cada etapa `regular` tem tabela de pontos própria e editável. **Padrão** (da 2ª Etapa):
@@ -183,5 +182,4 @@ regulamentos/{auto}
 
 ## 8. PENDÊNCIAS
 
-- Organização: aceitar ou não jogadores do **mesmo grupo** se cruzarem nas oitavas (3.7).
-- Todas as demais pendências (P1, P2) foram resolvidas — ver `DECISOES.md`.
+- Todas as pendências (P1, P2, seeds da chave) foram resolvidas — ver `DECISOES.md`.

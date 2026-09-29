@@ -112,7 +112,6 @@ Legenda: ✅ validada pelo usuário · 🟡 implementada, falta o teste manual �
 
 | # | Item | Origem | Prioridade |
 |---|---|---|---|
-| B1 | Confirmar com a organização: jogadores do **mesmo grupo** podem se cruzar nas oitavas? Se não, regra automática de separação na geração de seeds. | DEC-014 | Alta (antes do mata-mata da 3ª Etapa) |
 | B2 | Operar a 3ª Etapa real até o fim: placares → gerar chaves → mata-mata → **Finalizar etapa** → conferir Rank. | Uso real | Alta |
 | B3 | Importar a 1ª Etapa se os dados aparecerem (mesma tela/CSV). | SPEC §7 | Quando houver dados |
 | B4 | Segundo admin (se a organização quiser): e-mail em `firestore.rules` + `NEXT_PUBLIC_ADMIN_EMAILS`. | DEC-004 | Sob demanda |

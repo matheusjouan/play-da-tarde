@@ -20,7 +20,7 @@ Decisões não são apagadas: se mudar, cria-se uma nova que **substitui** a ant
 | [DEC-011](#dec-011) | Classificação geral: posição no grupo primeiro; vagas por etapa | Regra | ✅ |
 | [DEC-012](#dec-012) | Substituição: mesma posição, apaga jogos, não pontua | Regra | ✅ |
 | [DEC-013](#dec-013) | Chaves só após grupos completos; geração explícita pelo admin | Regra | ✅ |
-| [DEC-014](#dec-014) | Seeds por V > saldo sets > saldo games | Regra | ✅ / ⏳ |
+| [DEC-014](#dec-014) | Seeds por V > saldo sets > saldo games | Regra | 🔁 Substituída por DEC-030 |
 | [DEC-015](#dec-015) | Soma 17, quadrantes, byes, máximo 16 | Regra | ✅ |
 | [DEC-016](#dec-016) | Trava da chave e proteção do avanço | Regra | ✅ |
 | [DEC-017](#dec-017) | Pontuação configurável; "Finalizar etapa" grava o snapshot | Regra/Dados | ✅ |
@@ -36,6 +36,7 @@ Decisões não são apagadas: se mudar, cria-se uma nova que **substitui** a ant
 | [DEC-027](#dec-027) | Aba Recentes (5 últimos placares) e `atualizado_em` nas partidas | UX/Dados | ✅ |
 | [DEC-028](#dec-028) | Tema escuro por troca de paleta; preferência no `localStorage` | UX | ✅ |
 | [DEC-029](#dec-029) | Perfil "Placar": só lança/edita placar, imposto nas Rules | Segurança | ✅ |
+| [DEC-030](#dec-030) | Seeds da chave seguem a ordem da geral (posição no grupo primeiro) | Regra | ✅ |
 
 ---
 
@@ -165,9 +166,9 @@ Decisões não são apagadas: se mudar, cria-se uma nova que **substitui** a ant
 - **Onde:** `src/app/chaves/page.tsx`, `gerarChave` em `repo.ts`.
 
 ### DEC-014
-**Seeds por V > saldo sets > saldo games** — 24/09/2026 · ✅ / ⏳
+**Seeds por V > saldo sets > saldo games** — 24/09/2026 · 🔁 Substituída por [DEC-030](#dec-030)
 - **Decisão:** seeds entre os classificados da chave pelas métricas, sem olhar a posição no grupo (conforme spec original). Empate total mantém a ordem da geral e é sinalizado.
-- **Consequências:** jogadores do **mesmo grupo** podem se cruzar já nas oitavas. **⏳ Pendente** confirmar com a organização; hoje contornado com "Ajustar seeds".
+- **Consequências:** jogadores do **mesmo grupo** podiam se cruzar já nas oitavas mesmo sendo 1º e 2º dos grupos — a organização (o próprio usuário, jogador na etapa) apontou o caso real da E-atual (Matheus Jouan 8º geral / 1º do grupo D reordenado para seed #10) e pediu a troca pela regra de DEC-030.
 - **Onde:** `definirSeeds` em `engine/chave.ts`.
 
 ### DEC-015
@@ -212,3 +213,10 @@ Decisões não são apagadas: se mudar, cria-se uma nova que **substitui** a ant
 **Finals (P2)** — 24/09/2026 · ✅
 - **Decisão:** mata-mata direto do Top 8 do Rank da temporada (`1×8, 4×5, 3×6, 2×7`), mesmo formato de partida, **sem pontos**. Gravada como a chave `"ouro"` da etapa `finals` (reaproveita todo o mata-mata). Não gera com empate na 8ª vaga; avisa se há etapa não finalizada. Card 🏆 na aba Rank.
 - **Onde:** `src/components/chaves/FinalsChave.tsx`, `FinalsCard.tsx`.
+
+### DEC-030
+**Seeds da chave seguem a ordem da geral (posição no grupo primeiro)** — 29/09/2026 · ✅
+- **Contexto:** substitui [DEC-014](#dec-014). A pendência ficou marcada como "⏳" desde a criação da SPEC; o usuário (jogador na etapa em andamento) reportou o caso real da Chave Ouro: com 8 grupos de 5, a aba Geral mostra vitórias/saldo com **posição no grupo primeiro** (todos os 1ºs antes dos 2ºs — DEC-011), mas `definirSeeds` reordenava os mesmos 16 nomes só por vitórias/saldo, ignorando essa prioridade — um 1º de grupo (8º geral) virava seed #10 e um 2º de grupo pior na geral virava seed melhor. O usuário confirmou o entendimento: "um 2º lugar nunca deve ficar em cima do 1º… senão não tem sentido ter a chave geral."
+- **Decisão:** `definirSeeds` não reordena mais — usa a ordem já definida por `classificarGeral` (`geral.linhas` filtrado por `destino`), que é a fonte da verdade. Continua sinalizando empate total (mesma posição no grupo e mesmas métricas) para o admin ajustar.
+- **Consequências:** o número do seed agora sempre bate com a posição na aba Geral. Jogadores do mesmo grupo ainda podem, em tese, se cruzar nas oitavas (propriedade do formato de soma 17 com dois blocos — 1ºs vs. 2ºs — já existente desde DEC-011/015), mas só por coincidência de força relativa dentro de cada bloco, não mais porque o seed ignorava a posição no grupo.
+- **Onde:** `definirSeeds` em `engine/chave.ts` (e testes em `chave.test.ts`).

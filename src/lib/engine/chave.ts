@@ -83,24 +83,25 @@ export function montarChave(seeds: string[]): JogoChave[] {
 }
 
 /**
- * Seeds dos classificados de uma chave: vitórias → saldo de sets → saldo de games.
- * Em empate total vale a ordem da classificação geral (entrada) e o bloco é devolvido em `empates`
- * para o admin conferir/ajustar.
+ * Seeds dos classificados de uma chave: segue a ordem da classificação geral (posição no grupo →
+ * vitórias → saldo de sets → saldo de games → manual), já resolvida em `linhas` — nunca reordena
+ * por métricas sozinhas, para um 2º colocado de grupo jamais ficar acima de um 1º (DEC-030).
+ * Empate total (mesma posição no grupo e mesmas métricas) é devolvido em `empates` para o admin conferir/ajustar.
  */
 export function definirSeeds(linhas: LinhaGeral[]): { seeds: string[]; empates: string[][] } {
-  const ordenadas = [...linhas].sort((a, b) => b.vitorias - a.vitorias || b.saldoSets - a.saldoSets || b.saldoGames - a.saldoGames);
   const empates: string[][] = [];
-  for (let i = 0; i < ordenadas.length; ) {
+  for (let i = 0; i < linhas.length; ) {
     let j = i + 1;
     while (
-      j < ordenadas.length &&
-      ordenadas[j].vitorias === ordenadas[i].vitorias &&
-      ordenadas[j].saldoSets === ordenadas[i].saldoSets &&
-      ordenadas[j].saldoGames === ordenadas[i].saldoGames
+      j < linhas.length &&
+      linhas[j].posicaoGrupo === linhas[i].posicaoGrupo &&
+      linhas[j].vitorias === linhas[i].vitorias &&
+      linhas[j].saldoSets === linhas[i].saldoSets &&
+      linhas[j].saldoGames === linhas[i].saldoGames
     )
       j++;
-    if (j - i > 1) empates.push(ordenadas.slice(i, j).map((l) => l.jogadorId));
+    if (j - i > 1) empates.push(linhas.slice(i, j).map((l) => l.jogadorId));
     i = j;
   }
-  return { seeds: ordenadas.map((l) => l.jogadorId), empates };
+  return { seeds: linhas.map((l) => l.jogadorId), empates };
 }
