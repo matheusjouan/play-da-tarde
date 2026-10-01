@@ -1,5 +1,4 @@
 import { Pencil } from "lucide-react";
-import { ehWO } from "@/lib/engine/placar";
 import type { Partida } from "@/lib/types";
 
 type Props = {
@@ -23,7 +22,7 @@ export function ListaJogos({ jogos, nome, podeEditar, onEditar }: Props) {
             </span>
             {temPlacar ? (
               <span className="flex items-center gap-2">
-                {ehWO(p.sets) && <span className="rounded bg-slate-200 px-1.5 py-0.5 text-xs font-semibold text-slate-700">W.O.</span>}
+                {p.wo && <span className="rounded bg-slate-200 px-1.5 py-0.5 text-xs font-semibold text-slate-700">W.O.</span>}
                 <span className="flex gap-2 tabular-nums">
                   {p.sets.map((s, i) => (
                     <span key={i} className={`flex flex-col items-center ${s.superTieBreak ? "text-amber-700" : ""}`}>

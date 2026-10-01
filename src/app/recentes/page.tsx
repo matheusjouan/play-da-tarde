@@ -46,6 +46,7 @@ export default function RecentesPage() {
                 jogador1Venceu={!!p.jogador1Id && p.vencedorId === p.jogador1Id}
                 jogador2Venceu={!!p.jogador2Id && p.vencedorId === p.jogador2Id}
                 sets={p.sets}
+                wo={p.wo}
                 data={p.atualizado_em ? dataCurta(p.atualizado_em.toDate()) : null}
               />
             );

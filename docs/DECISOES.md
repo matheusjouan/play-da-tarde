@@ -15,7 +15,7 @@ Decisões não são apagadas: se mudar, cria-se uma nova que **substitui** a ant
 | [DEC-006](#dec-006) | Mobile-first: bottom bar, 44px, acordeão um-por-vez | UX | ✅ |
 | [DEC-007](#dec-007) | Super tie-break não conta como set; +2 games ao vencedor | Regra | ✅ |
 | [DEC-008](#dec-008) | Validação de placar | Regra | ✅ |
-| [DEC-009](#dec-009) | W.O. = 6x0 6x0, sem campo especial | Regra | ✅ |
+| [DEC-009](#dec-009) | W.O. = 6x0 6x0, sem campo especial | Regra | 🔁 Substituída por [DEC-031](#dec-031) |
 | [DEC-010](#dec-010) | Empate total: admin define a ordem; aviso só com grupo encerrado | Regra | ✅ |
 | [DEC-011](#dec-011) | Classificação geral: posição no grupo primeiro; vagas por etapa | Regra | ✅ |
 | [DEC-012](#dec-012) | Substituição: mesma posição, apaga jogos, não pontua | Regra | ✅ |
@@ -37,6 +37,7 @@ Decisões não são apagadas: se mudar, cria-se uma nova que **substitui** a ant
 | [DEC-028](#dec-028) | Tema escuro por troca de paleta; preferência no `localStorage` | UX | ✅ |
 | [DEC-029](#dec-029) | Perfil "Placar": só lança/edita placar, imposto nas Rules | Segurança | ✅ |
 | [DEC-030](#dec-030) | Seeds da chave seguem a ordem da geral (posição no grupo primeiro) | Regra | ✅ |
+| [DEC-031](#dec-031) | W.O. vira campo explícito (`wo`), marcado manualmente | Regra | ✅ |
 
 ---
 
@@ -139,7 +140,7 @@ Decisões não são apagadas: se mudar, cria-se uma nova que **substitui** a ant
 - **Onde:** `src/lib/engine/placar.ts`.
 
 ### DEC-009
-**W.O. = 6x0 6x0** — 24/09/2026 · ✅
+**W.O. = 6x0 6x0** — 24/09/2026 · 🔁 Substituída por [DEC-031](#dec-031)
 - **Decisão:** sem campo especial nem regra de acúmulo; conta como jogo normal; tag "W.O." só visual; atalho no modal de placar.
 - **Onde:** `ehWO` em `placar.ts`, `grupos/PlacarModal.tsx`.
 
@@ -220,3 +221,9 @@ Decisões não são apagadas: se mudar, cria-se uma nova que **substitui** a ant
 - **Decisão:** `definirSeeds` não reordena mais — usa a ordem já definida por `classificarGeral` (`geral.linhas` filtrado por `destino`), que é a fonte da verdade. Continua sinalizando empate total (mesma posição no grupo e mesmas métricas) para o admin ajustar.
 - **Consequências:** o número do seed agora sempre bate com a posição na aba Geral. Jogadores do mesmo grupo ainda podem, em tese, se cruzar nas oitavas (propriedade do formato de soma 17 com dois blocos — 1ºs vs. 2ºs — já existente desde DEC-011/015), mas só por coincidência de força relativa dentro de cada bloco, não mais porque o seed ignorava a posição no grupo.
 - **Onde:** `definirSeeds` em `engine/chave.ts` (e testes em `chave.test.ts`).
+
+### DEC-031
+**W.O. vira campo explícito (`wo`), marcado manualmente** — 01/10/2026 · ✅
+- **Contexto:** substitui [DEC-009](#dec-009). Inferir W.O. a partir do placar 6x0 6x0 (`ehWO`) gerava falso positivo: o usuário relatou dois jogos do Grupo F que terminaram 6x0 6x0 **jogados de verdade** e o sistema exibia a tag "W.O." do mesmo jeito, sem forma de corrigir.
+- **Decisão:** `partidas.wo?: boolean` grava a marcação feita pelo admin, independente do placar lançado. Os atalhos "W.O. p/ Fulano" no modal continuam preenchendo 6x0 6x0 e já marcam `wo: true`; um checkbox "Marcar como W.O." (só visível quando o placar está no formato 6x0 6x0) permite desmarcar um 6x0 6x0 real ou marcar manualmente. Ausente = não foi W.O. Continua sem regra de acúmulo e contando como jogo normal na classificação.
+- **Onde:** `Partida.wo` em `types.ts`; `placarDeWO` (ex-`ehWO`) em `placar.ts`; `PlacarModal.tsx`; `salvarPlacar`/`salvarPlacarMataMata`/`limparPlacar`/`limparPlacarMataMata` em `repo.ts`; exibição da tag em `ListaJogos.tsx`, `JogoCard.tsx`, `RecenteCard.tsx`; `lancaPlacar()` em `firestore.rules` (campo `wo` liberado para o perfil Placar — precisa publicar as regras).

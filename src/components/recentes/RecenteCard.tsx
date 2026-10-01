@@ -1,5 +1,4 @@
 import { Check } from "lucide-react";
-import { ehWO } from "@/lib/engine/placar";
 import type { SetPlacar } from "@/lib/types";
 
 type Props = {
@@ -11,11 +10,12 @@ type Props = {
   jogador1Venceu: boolean;
   jogador2Venceu: boolean;
   sets: SetPlacar[];
+  wo?: boolean;
   data: string | null;
 };
 
 /** Um placar recente: título (grupo ou fase), os dois jogadores com o vencedor em verde, placar por set e data. */
-export function RecenteCard({ titulo, etapa, jogador1, jogador2, jogador1Venceu, jogador2Venceu, sets, data }: Props) {
+export function RecenteCard({ titulo, etapa, jogador1, jogador2, jogador1Venceu, jogador2Venceu, sets, wo, data }: Props) {
   const linha = (nome: string, venceu: boolean, lado: 1 | 2) => (
     <div className={`flex min-h-10 items-center gap-2 ${venceu ? "font-semibold text-emerald-700" : "text-slate-600"}`}>
       <span className="flex w-4 shrink-0 justify-center">{venceu && <Check size={16} strokeWidth={3} aria-label="Vencedor" />}</span>
@@ -48,7 +48,7 @@ export function RecenteCard({ titulo, etapa, jogador1, jogador2, jogador1Venceu,
       {linha(jogador2, jogador2Venceu, 2)}
       <footer className="mt-1 flex items-center justify-between text-xs text-slate-500">
         <span>{data ? `Data: ${data}` : ""}</span>
-        {ehWO(sets) && <span className="rounded bg-slate-200 px-1.5 py-0.5 font-semibold text-slate-700">W.O.</span>}
+        {wo && <span className="rounded bg-slate-200 px-1.5 py-0.5 font-semibold text-slate-700">W.O.</span>}
       </footer>
     </article>
   );

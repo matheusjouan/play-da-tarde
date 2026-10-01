@@ -1,5 +1,4 @@
 import { Pencil } from "lucide-react";
-import { ehWO } from "@/lib/engine/placar";
 import type { SetPlacar } from "@/lib/types";
 
 export type JogoExibido = {
@@ -7,6 +6,7 @@ export type JogoExibido = {
   jogador2Id: string | null;
   vencedorId: string | null;
   sets?: SetPlacar[];
+  wo?: boolean;
 };
 
 type Props = {
@@ -56,7 +56,7 @@ export function JogoCard({ jogo, nome, seed, onEditar }: Props) {
 
   return (
     <div className="relative rounded-xl border border-slate-200 bg-superficie">
-      {ehWO(sets) && (
+      {jogo.wo && (
         <span className="absolute -top-2 right-3 rounded bg-slate-200 px-1.5 text-xs font-semibold text-slate-700">W.O.</span>
       )}
       {bye && <span className="absolute -top-2 right-3 rounded bg-slate-100 px-1.5 text-xs text-slate-500">avança direto</span>}

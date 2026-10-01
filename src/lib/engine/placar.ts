@@ -52,8 +52,8 @@ export function validarPlacar(sets: SetPlacar[]): ResultadoPlacar {
   return { ok: true, vencedor: s3.games1 > s3.games2 ? 1 : 2, setsJ1, setsJ2, superTieBreak: true };
 }
 
-/** W.O. é lançado como 6x0 6x0 — só usado para exibir a tag; não altera nenhum cálculo. */
-export function ehWO(sets: SetPlacar[]): boolean {
+/** Placar no formato de W.O. (6x0 6x0, em qualquer direção) — usado só para habilitar a marcação manual de W.O. no modal. */
+export function placarDeWO(sets: SetPlacar[]): boolean {
   return (
     sets.length === 2 &&
     sets.every((s) => !s.superTieBreak) &&

@@ -64,6 +64,8 @@ export type Partida = {
   jogador2Id: string | null;
   sets: SetPlacar[];
   vencedorId: string | null;
+  /** W.O. é uma marcação explícita do admin (independente do placar lançado). Ausente = não foi W.O. */
+  wo?: boolean;
   /** Quando o placar foi lançado/alterado pela última vez (aba Recentes). Ausente = sem placar ou lançado antes da v1.1. */
   atualizado_em?: Timestamp | null;
 };

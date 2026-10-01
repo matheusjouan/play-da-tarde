@@ -19,7 +19,7 @@ Para iniciar uma etapa numa sessão nova com a IA:
 | E4 | Grupos + confrontos automáticos | ✅ Validada |
 | E4.1 | Temporada + etapa selecionada entre abas | ✅ Validada |
 | E5 | Motor de cálculo (testes) | ✅ Validada |
-| E6 | Placar + classificação de grupos | ✅ Validada |
+| E6 | Placar + classificação de grupos | ✅ Validada — 01/10/2026: W.O. virou marcação explícita (DEC-031) |
 | E7 | Classificação geral | ✅ Validada |
 | E8 | Substituição de jogador | ✅ Validada |
 | E9 | Chaves Ouro e Prata | ✅ Validada |

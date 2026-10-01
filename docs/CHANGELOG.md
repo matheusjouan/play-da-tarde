@@ -7,6 +7,10 @@ Formato inspirado em [Keep a Changelog](https://keepachangelog.com/pt-BR/). Deci
 
 ---
 
+## [1.3.2] — 01/10/2026
+### Corrigido
+- W.O. deixa de ser inferido pelo placar 6x0 6x0 (`ehWO`) e vira campo explícito (`partidas.wo`), marcado manualmente pelo admin. Reportado pelo usuário com dois jogos do Grupo F que terminaram 6x0 6x0 jogados de verdade e apareciam marcados como W.O. sem forma de corrigir. O checkbox "Marcar como W.O." no modal de placar permite desmarcar um 6x0 6x0 real ou marcar manualmente. (DEC-031, substitui DEC-009)
+
 ## [1.3.1] — 29/09/2026
 ### Corrigido
 - Seeds das chaves Ouro/Prata agora seguem a mesma ordem da aba Geral (posição no grupo antes das métricas) em vez de reordenar os 16 classificados só por vitórias/saldo — um 2º de grupo não pode mais aparecer como seed acima de um 1º. Reportado pelo usuário com um caso real em andamento. (DEC-030, substitui DEC-014)

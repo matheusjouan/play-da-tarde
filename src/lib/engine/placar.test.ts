@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ehWO, setNormalValido, superTieBreakValido, validarPlacar } from "./placar";
+import { placarDeWO, setNormalValido, superTieBreakValido, validarPlacar } from "./placar";
 import { sets } from "./testUtils";
 
 describe("setNormalValido", () => {
@@ -45,10 +45,10 @@ describe("validarPlacar", () => {
   });
 });
 
-describe("ehWO", () => {
+describe("placarDeWO", () => {
   it("6x0 6x0 em qualquer direção", () => {
-    expect(ehWO(sets("6-0", "6-0"))).toBe(true);
-    expect(ehWO(sets("0-6", "0-6"))).toBe(true);
-    expect(ehWO(sets("6-0", "6-1"))).toBe(false);
+    expect(placarDeWO(sets("6-0", "6-0"))).toBe(true);
+    expect(placarDeWO(sets("0-6", "0-6"))).toBe(true);
+    expect(placarDeWO(sets("6-0", "6-1"))).toBe(false);
   });
 });

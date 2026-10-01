@@ -208,12 +208,12 @@ export async function excluirGrupo(grupo: Grupo) {
 
 // `atualizado_em` alimenta a aba Recentes: gravado ao salvar, removido ao limpar (o jogo sai da lista).
 
-export async function salvarPlacar(partidaId: string, sets: SetPlacar[], vencedorId: string) {
-  await updateDoc(doc(db, "partidas", partidaId), { sets, vencedorId, atualizado_em: serverTimestamp() });
+export async function salvarPlacar(partidaId: string, sets: SetPlacar[], vencedorId: string, wo: boolean) {
+  await updateDoc(doc(db, "partidas", partidaId), { sets, vencedorId, wo: wo ? true : deleteField(), atualizado_em: serverTimestamp() });
 }
 
 export async function limparPlacar(partidaId: string) {
-  await updateDoc(doc(db, "partidas", partidaId), { sets: [], vencedorId: null, atualizado_em: deleteField() });
+  await updateDoc(doc(db, "partidas", partidaId), { sets: [], vencedorId: null, wo: deleteField(), atualizado_em: deleteField() });
 }
 
 /** Grava a ordem manual de um bloco de jogadores empatados, preservando a de outros blocos. */
@@ -267,13 +267,13 @@ function jogoSeguinte(partida: Partida, fases: FaseMM[], jogosDaChave: Partida[]
 }
 
 /** Salva o placar e coloca o vencedor no jogo seguinte. Bloqueia se o jogo seguinte já tiver placar e o vencedor mudar. */
-export async function salvarPlacarMataMata(partida: Partida, fases: FaseMM[], jogosDaChave: Partida[], sets: SetPlacar[], vencedorId: string) {
+export async function salvarPlacarMataMata(partida: Partida, fases: FaseMM[], jogosDaChave: Partida[], sets: SetPlacar[], vencedorId: string, wo: boolean) {
   const seguinte = jogoSeguinte(partida, fases, jogosDaChave);
   if (seguinte && seguinte.alvo.sets.length > 0 && seguinte.alvo[seguinte.campo] !== vencedorId) {
     throw new Error("O jogo da fase seguinte já tem placar. Apague aquele placar antes de mudar o vencedor deste jogo.");
   }
   const batch = writeBatch(db);
-  batch.update(doc(db, "partidas", partida.id), { sets, vencedorId, atualizado_em: serverTimestamp() });
+  batch.update(doc(db, "partidas", partida.id), { sets, vencedorId, wo: wo ? true : deleteField(), atualizado_em: serverTimestamp() });
   if (seguinte) batch.update(doc(db, "partidas", seguinte.alvo.id), { [seguinte.campo]: vencedorId });
   await batch.commit();
 }
@@ -285,7 +285,7 @@ export async function limparPlacarMataMata(partida: Partida, fases: FaseMM[], jo
     throw new Error("O jogo da fase seguinte já tem placar. Apague aquele placar primeiro.");
   }
   const batch = writeBatch(db);
-  batch.update(doc(db, "partidas", partida.id), { sets: [], vencedorId: null, atualizado_em: deleteField() });
+  batch.update(doc(db, "partidas", partida.id), { sets: [], vencedorId: null, wo: deleteField(), atualizado_em: deleteField() });
   if (seguinte) batch.update(doc(db, "partidas", seguinte.alvo.id), { [seguinte.campo]: null });
   await batch.commit();
 }

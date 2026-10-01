@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Modal } from "@/components/Modal";
 import { Alerta, btnPrimary, btnSecondary } from "@/components/ui";
-import { validarPlacar } from "@/lib/engine/placar";
+import { placarDeWO, validarPlacar } from "@/lib/engine/placar";
 import { limparPlacar, salvarPlacar } from "@/lib/repo";
 import type { Partida, SetPlacar } from "@/lib/types";
 
@@ -13,7 +13,7 @@ type Props = {
   nome2: string;
   onFechar: () => void;
   /** Padrão: gravação simples (fase de grupos). O mata-mata passa a própria (avança o vencedor). */
-  onSalvar?: (sets: SetPlacar[], vencedorId: string) => Promise<void>;
+  onSalvar?: (sets: SetPlacar[], vencedorId: string, wo: boolean) => Promise<void>;
   onLimpar?: () => Promise<void>;
 };
 
@@ -33,10 +33,11 @@ export function PlacarModal({
   nome1,
   nome2,
   onFechar,
-  onSalvar = (sets, vencedorId) => salvarPlacar(partida.id, sets, vencedorId),
+  onSalvar = (sets, vencedorId, wo) => salvarPlacar(partida.id, sets, vencedorId, wo),
   onLimpar = () => limparPlacar(partida.id),
 }: Props) {
   const [c, setC] = useState<Campos>(camposIniciais(partida.sets));
+  const [woMarcado, setWoMarcado] = useState(partida.wo ?? false);
   const [salvando, setSalvando] = useState(false);
   const [erroSalvar, setErroSalvar] = useState<string | null>(null);
 
@@ -56,6 +57,7 @@ export function PlacarModal({
     : [];
   const resultado = doisSets ? validarPlacar(sets) : null;
   const vencedorNome = resultado?.ok ? (resultado.vencedor === 1 ? nome1 : nome2) : null;
+  const podeSerWO = !!resultado?.ok && placarDeWO(sets);
 
   async function executar(acao: () => Promise<void>) {
     setSalvando(true);
@@ -72,11 +74,12 @@ export function PlacarModal({
   function salvar() {
     if (!resultado?.ok) return;
     const vencedorId = resultado.vencedor === 1 ? partida.jogador1Id : partida.jogador2Id;
-    if (vencedorId) executar(() => onSalvar(sets, vencedorId));
+    if (vencedorId) executar(() => onSalvar(sets, vencedorId, podeSerWO && woMarcado));
   }
 
-  function wo(vencedor: 1 | 2) {
+  function marcarComoWO(vencedor: 1 | 2) {
     setC(vencedor === 1 ? ["6", "0", "6", "0", "", ""] : ["0", "6", "0", "6", "", ""]);
+    setWoMarcado(true);
   }
 
   const input = (i: number, label: string) => (
@@ -114,13 +117,25 @@ export function PlacarModal({
       {umAUm && <p className="mt-2 text-xs text-slate-500">1 set a 1: informe o super tie-break (até 10, 2 de diferença).</p>}
 
       <div className="mt-3 flex gap-2">
-        <button type="button" className={`${btnSecondary} flex-1 text-sm`} onClick={() => wo(1)}>
+        <button type="button" className={`${btnSecondary} flex-1 text-sm`} onClick={() => marcarComoWO(1)}>
           W.O. p/ {nome1.split(" ")[0]}
         </button>
-        <button type="button" className={`${btnSecondary} flex-1 text-sm`} onClick={() => wo(2)}>
+        <button type="button" className={`${btnSecondary} flex-1 text-sm`} onClick={() => marcarComoWO(2)}>
           W.O. p/ {nome2.split(" ")[0]}
         </button>
       </div>
+
+      {podeSerWO && (
+        <label className="mt-3 flex min-h-11 items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            className="h-5 w-5 rounded border-slate-300 text-emerald-700 focus:ring-emerald-600/20"
+            checked={woMarcado}
+            onChange={(e) => setWoMarcado(e.target.checked)}
+          />
+          Marcar como W.O. (o placar 6x0 6x0 foi jogado por W.O., não em quadra)
+        </label>
+      )}
 
       <div className="mt-3 min-h-10">
         {resultado && !resultado.ok && <Alerta>{resultado.erro}</Alerta>}

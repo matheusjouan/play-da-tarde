@@ -165,7 +165,7 @@ export function FinalsChave({ etapa, partidas, chaves, isAdmin, podeLancarPlacar
           nome1={rank.nome(partidaEditando.jogador1Id)}
           nome2={rank.nome(partidaEditando.jogador2Id)}
           onFechar={() => setEditando(null)}
-          onSalvar={(sets, vencedorId) => salvarPlacarMataMata(partidaEditando, fases, jogosSalvos, sets, vencedorId)}
+          onSalvar={(sets, vencedorId, wo) => salvarPlacarMataMata(partidaEditando, fases, jogosSalvos, sets, vencedorId, wo)}
           onLimpar={() => limparPlacarMataMata(partidaEditando, fases, jogosSalvos)}
         />
       )}

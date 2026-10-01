@@ -1,5 +1,5 @@
 # ESPECIFICAÇÃO — Sistema de Gestão de Torneio de Tênis "Play da Tarde"
-**Versão:** 1.6 — 29/09/2026 (v1.0 original + decisões validadas durante a implementação; 1.3: aba Recentes; 1.4: tema escuro; 1.5: perfil Placar; 1.6: seeds seguem a geral)
+**Versão:** 1.7 — 01/10/2026 (v1.0 original + decisões validadas durante a implementação; 1.3: aba Recentes; 1.4: tema escuro; 1.5: perfil Placar; 1.6: seeds seguem a geral; 1.7: W.O. vira marcação explícita)
 **Abordagem:** Specification-Driven Development (SDD), por etapas incrementais
 
 > Este documento descreve **o que o sistema faz** (regras). O **porquê** de cada regra está em [`DECISOES.md`](DECISOES.md);
@@ -56,7 +56,8 @@ Cada etapa configura `vagas_ouro` e `vagas_prata` (padrão 16/16, máx. 16 por c
 - Placar inválido não é aceito na tela; jogos sem placar válido são ignorados no cálculo (tabela funciona com grupo incompleto).
 
 ### 3.4 W.O.
-- Lançado como **6x0 6x0** (atalho "W.O. p/ Fulano"). Conta como jogo normal. Tag "W.O." só visual.
+- Marcação explícita do admin (`wo: true` na partida), independente do placar lançado. Conta como jogo normal (sem regra de acúmulo). Tag "W.O." só visual.
+- Atalho "W.O. p/ Fulano" no modal de placar preenche **6x0 6x0** e já marca `wo: true`. Um checkbox "Marcar como W.O." (visível quando o placar está no formato 6x0 6x0, em qualquer direção) permite marcar/desmarcar manualmente — por exemplo, um 6x0 6x0 jogado de verdade não deve ficar marcado como W.O.
 
 ### 3.5 Desempate na fase de grupos
 1. Vitórias 2. Saldo de sets 3. Saldo de games (com a regra do STB)
@@ -129,6 +130,7 @@ partidas/{etapaId}__{chave}__{fase}__{slot}         ← mata-mata
   chave?: "ouro"|"prata", slot?: number
   jogador1Id, jogador2Id (null = bye / a definir)
   sets: [{ games1, games2, superTieBreak? }], vencedorId
+  wo?: boolean (marcação manual de W.O., ausente = não foi W.O. — 3.4)
   atualizado_em?: Timestamp do servidor (placar salvo; removido ao limpar) — aba Recentes
 
 chaves/{etapaId}_{ouro|prata}                        ← Finals usa "ouro"

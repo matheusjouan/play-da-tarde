@@ -25,12 +25,13 @@ service cloud.firestore {
       return request.resource.data.diff(resource.data).affectedKeys();
     }
 
-    // Salvar ou limpar o placar: só sets, vencedor (um dos dois jogadores ou nenhum) e a data do servidor.
+    // Salvar ou limpar o placar: só sets, vencedor (um dos dois jogadores ou nenhum), marcação de W.O. e a data do servidor.
     function lancaPlacar() {
       let d = request.resource.data;
-      return camposAlterados().hasOnly(['sets', 'vencedorId', 'atualizado_em'])
+      return camposAlterados().hasOnly(['sets', 'vencedorId', 'wo', 'atualizado_em'])
         && d.sets is list && d.sets.size() <= 3
         && (d.vencedorId == null || d.vencedorId == d.jogador1Id || d.vencedorId == d.jogador2Id)
+        && (!('wo' in d) || d.wo == true)
         && (!('atualizado_em' in d) || d.atualizado_em == request.time);
     }
 
